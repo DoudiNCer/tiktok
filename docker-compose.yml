@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  mysql:
+    image: 'mysql:8'
+    volumes:
+      - ./biz/dal/sql:/docker-entrypoint-initdb.d
+      - ./sqldb:/var/lib/mysql
+    ports:
+      - 13306:3306
+    environment:
+      - MYSQL_DATABASE=tiktok
+      - MYSQL_USER=tiktok
+      - MYSQL_PASSWORD=tiktok
+      - MYSQL_RANDOM_ROOT_PASSWORD="yes"
+  redis:
+    image: 'redis:6'
+    ports:
+      - 16379:6379
