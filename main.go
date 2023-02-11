@@ -10,6 +10,6 @@ import (
 func main() {
 	h := server.Default()
 
-	router.register(h)
+	router.Register(h)
 	h.Spin()
 }
