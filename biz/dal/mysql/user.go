@@ -2,10 +2,7 @@ package mysql
 
 import (
 	"github.com/DodiNCer/tiktok/biz/model"
-	"gorm.io/gorm"
 )
-
-var DB *gorm.DB
 
 func QueryUserByUid(uid int64) (*model.User, error) {
 
