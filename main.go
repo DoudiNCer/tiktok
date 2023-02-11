@@ -3,12 +3,17 @@
 package main
 
 import (
+	"github.com/DodiNCer/tiktok/biz/dal/sql"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	h := server.Default()
+	err := sql.InitDb()
+	if err != nil {
+		panic(err)
+	}
 
+	h := server.Default()
 	register(h)
 	h.Spin()
 }
