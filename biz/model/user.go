@@ -1,9 +1,6 @@
 package model
 
-import "gorm.io/gorm"
-
 type User struct {
-	gorm.Model
 	Id         int64  `json:"id" column:"id"`
 	Name       string `json:"name" column:"name"`
 	Password   string `json:"password" column:"password"`
@@ -11,5 +8,5 @@ type User struct {
 }
 
 func (u *User) TableName() string {
-	return "users"
+	return "user"
 }
