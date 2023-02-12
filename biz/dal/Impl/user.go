@@ -1,8 +1,8 @@
 package Impl
 
 import (
+	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
-	"github.com/DodiNCer/tiktok/dbfunc"
 	"github.com/DodiNCer/tiktok/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"strconv"
@@ -15,7 +15,7 @@ func Register(c *app.RequestContext) (model.UserResponse, error) {
 	var token string
 	userName := c.Query("username")
 	password := c.Query("password")
-	userId, err := dbfunc.Register(userName, password)
+	userId, err := mysql.Register(userName, password)
 	if err != nil {
 		return userResponse, err
 	}
@@ -35,7 +35,7 @@ func Login(c *app.RequestContext) (model.UserResponse, error) {
 	var token string
 	username := c.Query("username")
 	password := c.Query("password")
-	userId, err := dbfunc.Login(username, password)
+	userId, err := mysql.Login(username, password)
 	if err != nil {
 		return userResponse, err
 	}
@@ -57,7 +57,7 @@ func UserInfo(c *app.RequestContext) (model.UserInfoResponse, error) {
 		return userInfoResponse, err
 	}
 	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	userInfoResponse, err = dbfunc.UserInfo(userId, key.UserId)
+	userInfoResponse, err = mysql.UserInfo(userId, key.UserId)
 	if err != nil {
 		return userInfoResponse, err
 	}

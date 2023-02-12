@@ -1,7 +1,7 @@
-package dal
+package user_gorm
 
 import (
-	"github.com/DodiNCer/tiktok/Impl"
+	"github.com/DodiNCer/tiktok/biz/dal/Impl"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/cloudwego/hertz/pkg/app"
 	"net/http"

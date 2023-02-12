@@ -3,6 +3,7 @@ module github.com/DodiNCer/tiktok
 go 1.19
 
 require (
+	github.com/apache/thrift v0.17.0
 	github.com/cloudwego/hertz v0.5.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
