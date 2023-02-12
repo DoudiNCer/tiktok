@@ -30,3 +30,23 @@ func _createfollowerMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _relatioinMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _followMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _listMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _queryfollowlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

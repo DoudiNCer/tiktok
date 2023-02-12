@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var dsn = "tiktok:tiktok@tcp(localhost:13306)/tiktok?charset=utf8&parseTime=True&loc=Local"
+var dsn = "tiktok:tiktok@tcp(localhost:13306)/tiktok?charset=utf8mb4&parseTime=True&loc=Local"
 var DB *gorm.DB
 
 func Init() {
