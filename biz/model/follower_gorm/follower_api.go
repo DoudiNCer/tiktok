@@ -4,9 +4,63 @@ package follower_gorm
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"github.com/apache/thrift/lib/go/thrift"
 )
+
+type Code int64
+
+const (
+	Code_Success      Code = 0
+	Code_ParamInvalid Code = 1
+	Code_DBErr        Code = 2
+	Code_RTErr        Code = 3
+)
+
+func (p Code) String() string {
+	switch p {
+	case Code_Success:
+		return "Success"
+	case Code_ParamInvalid:
+		return "ParamInvalid"
+	case Code_DBErr:
+		return "DBErr"
+	case Code_RTErr:
+		return "RTErr"
+	}
+	return "<UNSET>"
+}
+
+func CodeFromString(s string) (Code, error) {
+	switch s {
+	case "Success":
+		return Code_Success, nil
+	case "ParamInvalid":
+		return Code_ParamInvalid, nil
+	case "DBErr":
+		return Code_DBErr, nil
+	case "RTErr":
+		return Code_RTErr, nil
+	}
+	return Code(0), fmt.Errorf("not a valid Code string")
+}
+
+func CodePtr(v Code) *Code { return &v }
+func (p *Code) Scan(value interface{}) (err error) {
+	var result sql.NullInt64
+	err = result.Scan(value)
+	*p = Code(result.Int64)
+	return
+}
+
+func (p *Code) Value() (driver.Value, error) {
+	if p == nil {
+		return nil, nil
+	}
+	return int64(*p), nil
+}
 
 type User struct {
 	ID            int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
@@ -559,7 +613,7 @@ func (p *CreateFollowerRequest) String() string {
 }
 
 type CreateFollowerResponse struct {
-	StatusCode int32  `thrift:"status_code,1" form:"status_code" json:"status_code" query:"status_code"`
+	StatusCode Code   `thrift:"status_code,1" form:"status_code" json:"status_code" query:"status_code"`
 	StatusMsg  string `thrift:"status_msg,2" form:"status_msg" json:"status_msg" query:"status_msg"`
 }
 
@@ -567,7 +621,7 @@ func NewCreateFollowerResponse() *CreateFollowerResponse {
 	return &CreateFollowerResponse{}
 }
 
-func (p *CreateFollowerResponse) GetStatusCode() (v int32) {
+func (p *CreateFollowerResponse) GetStatusCode() (v Code) {
 	return p.StatusCode
 }
 
@@ -653,7 +707,7 @@ func (p *CreateFollowerResponse) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.StatusCode = v
+		p.StatusCode = Code(v)
 	}
 	return nil
 }
@@ -704,7 +758,7 @@ func (p *CreateFollowerResponse) writeField1(oprot thrift.TProtocol) (err error)
 	if err = oprot.WriteFieldBegin("status_code", thrift.I32, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.StatusCode); err != nil {
+	if err := oprot.WriteI32(int32(p.StatusCode)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -925,7 +979,7 @@ func (p *QueryFollowListRequest) String() string {
 }
 
 type QueryFollowListResponse struct {
-	StatusCode int32   `thrift:"status_code,1" form:"status_code" json:"status_code" query:"status_code"`
+	StatusCode Code    `thrift:"status_code,1" form:"status_code" json:"status_code" query:"status_code"`
 	StatusMsg  string  `thrift:"status_msg,2" form:"status_msg" json:"status_msg" query:"status_msg"`
 	UserList   []*User `thrift:"user_list,3" form:"user_list" json:"user_list" query:"user_list"`
 }
@@ -934,7 +988,7 @@ func NewQueryFollowListResponse() *QueryFollowListResponse {
 	return &QueryFollowListResponse{}
 }
 
-func (p *QueryFollowListResponse) GetStatusCode() (v int32) {
+func (p *QueryFollowListResponse) GetStatusCode() (v Code) {
 	return p.StatusCode
 }
 
@@ -1035,7 +1089,7 @@ func (p *QueryFollowListResponse) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return err
 	} else {
-		p.StatusCode = v
+		p.StatusCode = Code(v)
 	}
 	return nil
 }
@@ -1110,7 +1164,7 @@ func (p *QueryFollowListResponse) writeField1(oprot thrift.TProtocol) (err error
 	if err = oprot.WriteFieldBegin("status_code", thrift.I32, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI32(p.StatusCode); err != nil {
+	if err := oprot.WriteI32(int32(p.StatusCode)); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

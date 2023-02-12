@@ -1,5 +1,12 @@
 namespace go follower_gorm
 
+enum Code {
+     Success         = 0
+     ParamInvalid    = 1
+     DBErr           = 2
+     RTErr           = 3
+}
+
 struct User {
     i64 id // 用户id
     string name // 用户名称
@@ -15,7 +22,7 @@ struct CreateFollowerRequest{
 }
 
 struct CreateFollowerResponse{
-    1: i32 status_code
+    1: Code status_code
     2: string status_msg
 }
 
@@ -25,7 +32,7 @@ struct QueryFollowListRequest {
 }
 
 struct QueryFollowListResponse {
-    1: i32 status_code // 状态码，0-成功，其他值-失败
+    1: Code status_code // 状态码，0-成功，其他值-失败
     2: string status_msg // 返回状态描述
     3: list<User> user_list // 用户信息列表
 }
