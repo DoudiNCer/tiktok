@@ -3,13 +3,16 @@
 package main
 
 import (
-	"github.com/DodiNCer/tiktok/biz/dal"
+	"github.com/DodiNCer/tiktok/biz/dal/sql"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
 	//初始化gorm
-	dal.Init()
+	err := sql.InitDb()
+	if err != nil {
+		return
+	}
 	h := server.Default()
 
 	register(h)

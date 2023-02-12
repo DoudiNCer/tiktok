@@ -1,15 +1,26 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
+// User User实体类
 type User struct {
-	gorm.Model
-	Id         int64  `json:"id" column:"id"`
-	Name       string `json:"name" column:"name"`
-	Password   string `json:"password" column:"password"`
-	CreateTime string `json:"create_time" column:"create_time"`
+	Id         int64     `gorm:"column:id"`          //用户id
+	Name       string    `gorm:"column:name"`        // 用户名称
+	Password   string    `gorm:"column:password"`    //用户密码
+	CreateTime time.Time `gorm:"column:create_time"` //用户创建时间
 }
 
-func (u *User) TableName() string {
-	return "users"
+func (ui User) TableName() string {
+	return "User"
+}
+
+// UserResp 响应结构体
+type UserResp struct {
+	Id            int64  `json:"id"`             // 用户id
+	Name          string `json:"name"`           // 用户名称
+	FollowCount   int64  `json:"follow_count"`   // 关注总数
+	FollowerCount int64  `json:"follower_count"` // 粉丝总数
+	IsFollow      bool   `json:"is_follow"`      // true-已关注，false-未关注
 }

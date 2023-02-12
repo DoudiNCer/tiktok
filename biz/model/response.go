@@ -1,4 +1,4 @@
-package Dao
+package model
 
 // BaseResponse 基本响应
 type BaseResponse struct {
@@ -9,6 +9,11 @@ type BaseResponse struct {
 // UserResponse 用户注册和登录的共用响应
 type UserResponse struct {
 	BaseResponse
-	UserId int    `json:"user_id"`
+	UserId int64  `json:"user_id"`
 	Token  string `json:"token"`
+}
+
+type UserInfoResponse struct {
+	BaseResponse
+	UserResp `json:"user"` //用户信息
 }

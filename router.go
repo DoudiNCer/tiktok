@@ -11,5 +11,11 @@ import (
 func customizedRegister(r *server.Hertz) {
 	r.GET("/ping", handler.Ping)
 	// your code ...
+
+	//用户注册
 	r.POST("/douyin/user/register", handler.RegisterPing)
+	//用户登录
+	r.POST("/douyin/user/login/", handler.LoginPing)
+	//用户信息
+	r.GET("/douyin/user/", handler.UserInfo)
 }

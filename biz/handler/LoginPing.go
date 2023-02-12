@@ -6,6 +6,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
-func RegisterPing(ctx context.Context, c *app.RequestContext) {
-	dal.Register(c)
+func LoginPing(ctx context.Context, c *app.RequestContext) {
+	dal.Login(c)
 }

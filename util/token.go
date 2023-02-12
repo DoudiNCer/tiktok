@@ -2,7 +2,7 @@ package util
 
 import (
 	"errors"
-	"github.com/DodiNCer/tiktok/Dao"
+	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -13,12 +13,12 @@ var JwtKey = []byte("tiktok")
 
 type MyClaims struct {
 	UserName string `json:"name,omitempty"`
-	UserId   int    `json:"id,omitempty"`
+	UserId   int64  `json:"id,omitempty"`
 	jwt.StandardClaims
 }
 
 // SetToken 生成token
-func SetToken(userName string, userId int, expireTime time.Time) (string, error) {
+func SetToken(userName string, userId int64, expireTime time.Time) (string, error) {
 	SetClaims := MyClaims{
 		UserName: userName,
 		UserId:   userId,
@@ -59,7 +59,7 @@ func JWT() gin.HandlerFunc {
 		token := c.Query("token")
 		_, err := CheckToken(token)
 		if err != nil {
-			c.JSON(http.StatusOK, Dao.BaseResponse{
+			c.JSON(http.StatusOK, model.BaseResponse{
 				StatusCode: -1,
 				StatusMsg:  err.Error(),
 			})
