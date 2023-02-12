@@ -3,18 +3,14 @@
 package main
 
 import (
-	"github.com/DodiNCer/tiktok/biz/dal/sql"
+	"github.com/DodiNCer/tiktok/biz/dal/mysql"
+	"github.com/DodiNCer/tiktok/biz/router"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	//初始化gorm
-	err := sql.InitDb()
-	if err != nil {
-		return
-	}
 	h := server.Default()
-
-	register(h)
+	mysql.Init()
+	router.Register(h)
 	h.Spin()
 }
