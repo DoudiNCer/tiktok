@@ -1,17 +1,17 @@
-package Impl
+package user_gorm
 
 import (
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
-	"github.com/DodiNCer/tiktok/biz/model"
-	"github.com/DodiNCer/tiktok/util"
+	"github.com/DodiNCer/tiktok/biz/model/user_gorm"
+	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"strconv"
 	"time"
 )
 
-// Register 用户注册
-func Register(c *app.RequestContext) (model.UserResponse, error) {
-	var userResponse model.UserResponse
+// RegisterImpl Register 用户注册
+func RegisterImpl(c *app.RequestContext) (user_gorm.UserResponse, error) {
+	var userResponse user_gorm.UserResponse
 	var token string
 	userName := c.Query("username")
 	password := c.Query("password")
@@ -19,7 +19,7 @@ func Register(c *app.RequestContext) (model.UserResponse, error) {
 	if err != nil {
 		return userResponse, err
 	}
-	token, err = util.SetToken(userName, userId, time.Now().Add(time.Hour*240))
+	token, err = util.SetToken(userName, userId, time.Now().Add(time.Hour*360))
 	if err != nil {
 		return userResponse, err
 	}
@@ -29,9 +29,9 @@ func Register(c *app.RequestContext) (model.UserResponse, error) {
 	return userResponse, nil
 }
 
-// Login 用户登录
-func Login(c *app.RequestContext) (model.UserResponse, error) {
-	var userResponse model.UserResponse
+// LoginImpl Login 用户登录
+func LoginImpl(c *app.RequestContext) (user_gorm.UserResponse, error) {
+	var userResponse user_gorm.UserResponse
 	var token string
 	username := c.Query("username")
 	password := c.Query("password")
@@ -39,7 +39,7 @@ func Login(c *app.RequestContext) (model.UserResponse, error) {
 	if err != nil {
 		return userResponse, err
 	}
-	token, err = util.SetToken(username, userId, time.Now().Add(time.Hour*240))
+	token, err = util.SetToken(username, userId, time.Now().Add(time.Hour*360))
 	if err != nil {
 		return userResponse, err
 	}
@@ -48,9 +48,9 @@ func Login(c *app.RequestContext) (model.UserResponse, error) {
 	return userResponse, nil
 }
 
-// UserInfo 查询用户信息
-func UserInfo(c *app.RequestContext) (model.UserInfoResponse, error) {
-	var userInfoResponse model.UserInfoResponse
+// UserInfoImpl UserInfo 查询用户信息
+func UserInfoImpl(c *app.RequestContext) (user_gorm.UserInfoResponse, error) {
+	var userInfoResponse user_gorm.UserInfoResponse
 	token := c.Query("token")
 	key, err := util.CheckToken(token)
 	if err != nil {

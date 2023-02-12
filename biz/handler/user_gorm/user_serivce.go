@@ -1,17 +1,17 @@
 package user_gorm
 
 import (
-	"github.com/DodiNCer/tiktok/biz/dal/Impl"
-	"github.com/DodiNCer/tiktok/biz/model"
+	"context"
+	"github.com/DodiNCer/tiktok/biz/model/user_gorm"
 	"github.com/cloudwego/hertz/pkg/app"
 	"net/http"
 )
 
 // Register 用户注册
-func Register(c *app.RequestContext) {
-	var response model.UserResponse
+func Register(ctx context.Context, c *app.RequestContext) {
+	var response user_gorm.UserResponse
 	var err error
-	response, err = Impl.Register(c)
+	response, err = RegisterImpl(c)
 	if err != nil {
 		response.StatusCode = -1
 		response.StatusMsg = "注册失败:" + err.Error()
@@ -24,10 +24,10 @@ func Register(c *app.RequestContext) {
 }
 
 // Login 用户登录
-func Login(c *app.RequestContext) {
-	var response model.UserResponse
+func Login(ctx context.Context, c *app.RequestContext) {
+	var response user_gorm.UserResponse
 	var err error
-	response, err = Impl.Login(c)
+	response, err = LoginImpl(c)
 	if err != nil {
 		response.StatusCode = -1
 		response.StatusMsg = "登录失败:" + err.Error()
@@ -41,10 +41,10 @@ func Login(c *app.RequestContext) {
 }
 
 // UserInfo 用户信息
-func UserInfo(c *app.RequestContext) {
-	var response model.UserInfoResponse
+func UserInfo(ctx context.Context, c *app.RequestContext) {
+	var response user_gorm.UserInfoResponse
 	var err error
-	response, err = Impl.UserInfo(c)
+	response, err = UserInfoImpl(c)
 	if err != nil {
 		response.StatusCode = -1
 		response.StatusMsg = "查询失败:" + err.Error()

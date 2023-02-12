@@ -2,7 +2,7 @@ package util
 
 import (
 	"errors"
-	"github.com/DodiNCer/tiktok/biz/model"
+	"github.com/DodiNCer/tiktok/biz/model/user_gorm"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -59,7 +59,7 @@ func JWT() gin.HandlerFunc {
 		token := c.Query("token")
 		_, err := CheckToken(token)
 		if err != nil {
-			c.JSON(http.StatusOK, model.BaseResponse{
+			c.JSON(http.StatusOK, user_gorm.BaseResponse{
 				StatusCode: -1,
 				StatusMsg:  err.Error(),
 			})

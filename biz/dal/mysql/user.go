@@ -3,10 +3,26 @@ package mysql
 import (
 	"errors"
 	"github.com/DodiNCer/tiktok/biz/model"
-	"github.com/DodiNCer/tiktok/util"
-
+	"github.com/DodiNCer/tiktok/biz/model/user_gorm"
+	"github.com/DodiNCer/tiktok/biz/util"
 	"time"
 )
+
+func QueryUserByUid(uid int64) (*model.User, error) {
+
+	db := DB.Model(model.User{})
+
+	db = db.Where("id = ?", uid)
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, err
+	}
+	var res *model.User
+	if err := db.First(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
+}
 
 // Register 注册用户
 func Register(username, password string) (int64, error) {
@@ -57,11 +73,11 @@ func Login(username, password string) (int64, error) {
 }
 
 // UserInfo 获取用户信息
-func UserInfo(userId, Tid int64) (model.UserInfoResponse, error) {
+func UserInfo(userId, Tid int64) (user_gorm.UserInfoResponse, error) {
 	var user model.User
 	var follower model.Follower
-	var UserResp model.UserResp
-	var userInfoResponse model.UserInfoResponse
+	var UserResp user_gorm.UserResp
+	var userInfoResponse user_gorm.UserInfoResponse
 
 	tx := DB.Begin()
 
