@@ -47,3 +47,21 @@ func QueryFollower(uid int64) ([]*model.Follower, int64, error) {
 
 	return res, total, nil
 }
+
+func QueryForCheck(uid, toUid int64) (*model.Follower, int64, error) {
+	db := DB.Model(model.Follower{})
+	db = db.Where("user_uid = ?", uid)
+	db = db.Where("to_user_uid = ?", toUid)
+
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var res *model.Follower
+	if err := db.Find(&res).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return res, total, nil
+}
