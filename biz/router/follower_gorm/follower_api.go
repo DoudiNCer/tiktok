@@ -25,6 +25,13 @@ func Register(r *server.Hertz) {
 				_action := _relation.Group("/action", _actionMw()...)
 				_action.POST("/", append(_createfollowerMw(), follower_gorm.CreateFollower)...)
 			}
+			{
+				_follow := _relation.Group("/follow", _followMw()...)
+				{
+					_list := _follow.Group("/list", _listMw()...)
+					_list.GET("/", append(_queryfollowlistMw(), follower_gorm.QueryFollowList)...)
+				}
+			}
 		}
 	}
 }
