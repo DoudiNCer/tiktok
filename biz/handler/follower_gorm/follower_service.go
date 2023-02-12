@@ -80,11 +80,11 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 
 	var userList = resp.GetUserList()
 
-	for i := 0; i < len(followList); i++ {
+	for _, value := range followList {
 		//创建载体对象
 		var userSingle follower_gorm.User
 		//查询出的关注对象
-		follower := followList[i]
+		follower := value
 		//获取关注对象uid
 		uid := follower.ToUserUid
 
