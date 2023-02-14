@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	friend_list_gorm "github.com/DodiNCer/tiktok/biz/model/friend_list_gorm"
+	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"strconv"
@@ -17,6 +18,12 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req friend_list_gorm.GetFriendListRequest
 	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
+		return
+	}
+
+	_, err = util.CheckToken(req.Token) //校验token
 	if err != nil {
 		c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
 		return
