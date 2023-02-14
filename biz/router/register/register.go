@@ -4,6 +4,7 @@ package register
 
 import (
 	follower_gorm "github.com/DodiNCer/tiktok/biz/router/follower_gorm"
+	friend_list_gorm "github.com/DodiNCer/tiktok/biz/router/friend_list_gorm"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
@@ -12,4 +13,5 @@ func GeneratedRegister(r *server.Hertz) {
 	//INSERT_POINT: DO NOT DELETE THIS LINE!
 	follower_gorm.Register(r)
 
+	friend_list_gorm.Register(r)
 }
