@@ -1,17 +1,19 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Comment struct {
-	Id          int64 `gorm:"primaryKey"`
-	CreatorId   int64
-	Text        string
-	VideoId     int64
-	IsDeleted   bool
-	UpdateTime  time.Time
-	CreatedTime time.Time
+	Id         int64 `gorm:"primaryKey"`
+	CreatorUid int64
+	Text       string
+	VideoId    int64
+	CreatedAt  time.Time `gorm:"column:create_time"`
+	UpdatedAt  time.Time `gorm:"column:update_time"`
+	IsDeleted  int8
 }
 
-func (comment *Comment) TableName() string {
+func (f *Comment) TableName() string {
 	return "comment"
 }
