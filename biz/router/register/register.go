@@ -3,8 +3,10 @@
 package register
 
 import (
+	favorite_gorm "github.com/DodiNCer/tiktok/biz/router/favorite_gorm"
 	follower_gorm "github.com/DodiNCer/tiktok/biz/router/follower_gorm"
 	friend_list_gorm "github.com/DodiNCer/tiktok/biz/router/friend_list_gorm"
+	publish_gorm "github.com/DodiNCer/tiktok/biz/router/publish_gorm"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
@@ -14,4 +16,8 @@ func GeneratedRegister(r *server.Hertz) {
 	follower_gorm.Register(r)
 
 	friend_list_gorm.Register(r)
+
+	favorite_gorm.Register(r)
+
+	publish_gorm.Register(r)
 }
