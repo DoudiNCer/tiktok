@@ -13,4 +13,5 @@ func Register(r *server.Hertz) {
 	register.GeneratedRegister(r)
 
 	register.CustomizedRegister(r)
+
 }

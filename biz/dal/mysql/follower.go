@@ -47,3 +47,15 @@ func QueryFollower(uid int64) ([]*model.Follower, int64, error) {
 
 	return res, total, nil
 }
+
+// QueryFollowSelf 查询是否关注自己
+func QueryFollowSelf(uid int64) (int64, error) {
+	db := DB.Model(model.Follower{})
+	db = db.Where(model.Follower{UserUid: uid, ToUserUid: uid})
+	var total int64
+	err := db.Count(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}
