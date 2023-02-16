@@ -7,6 +7,7 @@ import (
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/comment_gorm"
+	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"time"
@@ -24,16 +25,13 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(comment_gorm.CommentActionResponse)
 
-	//有点问题所以测试我把这个注起来了
-	/*token := req.Token
+	token := req.Token
 	key, err := util.CheckToken(token)
 	if err != nil {
 		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_RTErr, StatusMsg: err.Error()})
 		return
 	}
-	userId := key.UserId*/
-
-	userId := int64(3123)
+	userId := key.UserId
 
 	if req.ActionType == 1 {
 		comment, err := mysql.CreateComment(&model.Comment{CreatorUid: userId, Text: req.CommentText, VideoId: req.VideoID, CreatedAt: time.Now()})
@@ -92,9 +90,6 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
 	}
 
-	/*respUser := comment_gorm.User{ID: comment.CreatorUid, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: isFollow}
-	resp.Comment = &comment_gorm.Comment{ID: comment.Id, User: &respUser, Content: comment.Text, CreateDate: comment.CreatedAt.String()}
-	*/
 	c.JSON(consts.StatusOK, resp)
 }
 
