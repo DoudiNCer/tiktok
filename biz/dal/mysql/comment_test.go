@@ -8,7 +8,7 @@ import (
 
 func TestCreateComment(t *testing.T) {
 	fmt.Println("CreateComment")
-	comment := model.Comment{CreatorUid: 12, Text: "hello", VideoId: 12, IsDeleted: 0}
+	comment := model.Comment{CreatorUid: 12, Text: "hello", VideoId: 12}
 	Init()
 	_, err := CreateComment(&comment)
 	if err != nil {
