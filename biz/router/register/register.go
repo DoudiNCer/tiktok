@@ -3,11 +3,11 @@
 package register
 
 import (
-
-	favorite_gorm "github.com/DodiNCer/tiktok/biz/router/favorite_gorm"
 	comment_gorm "github.com/DodiNCer/tiktok/biz/router/comment_gorm"
+	favorite_gorm "github.com/DodiNCer/tiktok/biz/router/favorite_gorm"
 	follower_gorm "github.com/DodiNCer/tiktok/biz/router/follower_gorm"
 	friend_list_gorm "github.com/DodiNCer/tiktok/biz/router/friend_list_gorm"
+	friend_talk_message_gorm "github.com/DodiNCer/tiktok/biz/router/friend_talk_message_gorm"
 	publish_gorm "github.com/DodiNCer/tiktok/biz/router/publish_gorm"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
@@ -16,6 +16,9 @@ import (
 func GeneratedRegister(r *server.Hertz) {
 	//INSERT_POINT: DO NOT DELETE THIS LINE!
 	follower_gorm.Register(r)
+
+	friend_talk_message_gorm.Register(r)
+
 	comment_gorm.Register(r)
 
 	friend_list_gorm.Register(r)
