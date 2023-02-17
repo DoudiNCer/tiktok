@@ -62,7 +62,7 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 		}
 
 		//查看是否关注自己
-		self, err := mysql.QueryFollowSelf(userId)
+		self, err := mysql.QueryIfFollowSomeone(userId, userId)
 		if err != nil {
 			return
 		}
@@ -73,8 +73,6 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 		//封装评论响应数据
 		commentResp := comment_gorm.Comment{ID: comment.Id, User: &userResp, Content: comment.Text, CreateDate: comment.CreatedAt.String()}
 
-		resp.StatusCode = comment_gorm.Code_Success
-		resp.StatusMsg = "success"
 		resp.Comment = &commentResp
 
 	} else if req.ActionType == 2 {
@@ -84,12 +82,12 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		resp.StatusCode = comment_gorm.Code_Success
-		resp.StatusMsg = "success"
 	} else {
 		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
 	}
 
+	resp.StatusCode = comment_gorm.Code_Success
+	resp.StatusMsg = "success"
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -100,11 +98,85 @@ func QueryCommentList(ctx context.Context, c *app.RequestContext) {
 	var req comment_gorm.CommentListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
 		return
 	}
 
+	//获取用户Id
+	token := req.Token
+	key, err := util.CheckToken(token)
+	if err != nil {
+		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_RTErr, StatusMsg: err.Error()})
+		return
+	}
+	userId := key.UserId
+
+	//根据videoId查找对应源评论集
+	videoId := req.VideoID
+	comments, err := mysql.QueryCommentsByVideoId(videoId)
+	if err != nil {
+		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+		return
+	}
+
+	//构造返回的评论集
+	commentsResp := make([]*comment_gorm.Comment, 0)
+
+	for i := 0; i < len(comments); i++ {
+
+		comment := comments[i]
+
+		//查找评论用户名称
+		user, err := mysql.QueryUserByUid(comment.CreatorUid)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//查找关注总数
+		_, followTotal, err := mysql.QueryFollow(comment.CreatorUid)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//查找粉丝总数
+		_, followerTotal, err := mysql.QueryFollower(comment.CreatorUid)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//查看评论者和用户是否存在关注的关系
+		isFollow, err := mysql.QueryIfFollowSomeone(comment.CreatorUid, userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//封装每个评论的用户集
+		var userResp comment_gorm.User
+		userResp.ID = comment.CreatorUid
+		userResp.Name = user.Name
+		userResp.FollowCount = followTotal
+		userResp.FollowerCount = followerTotal
+		userResp.IsFollow = isFollow == 1
+
+		//封装返回的评论
+		var commentResp comment_gorm.Comment
+		commentResp.ID = comment.Id
+		commentResp.User = &userResp
+		commentResp.Content = comment.Text
+		commentResp.CreateDate = comment.CreatedAt.String()
+
+		//封装返回的评论集
+		commentsResp = append(commentsResp, &commentResp)
+	}
+
 	resp := new(comment_gorm.CommentListResponse)
+	resp.CommentList = commentsResp
+	resp.StatusCode = comment_gorm.Code_Success
+	resp.StatusMsg = "success"
 
 	c.JSON(consts.StatusOK, resp)
 }
