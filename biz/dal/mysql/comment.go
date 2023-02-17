@@ -20,6 +20,6 @@ func DeleteComment(commentId int64) error {
 
 func QueryCommentsByVideoId(videoId int64) ([]*model.Comment, error) {
 	var comments []*model.Comment
-	err := DB.Model(model.Comment{}).Where("video_id = ? AND is_deleted = ?", videoId, 0).Find(&comments).Error
+	err := DB.Model(model.Comment{}).Where("video_id = ? AND is_deleted = 0", videoId).Find(&comments).Error
 	return comments, err
 }
