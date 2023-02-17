@@ -8,7 +8,7 @@ import (
 
 func TestCreateComment(t *testing.T) {
 	fmt.Println("CreateComment")
-	comment := model.Comment{CreatorUid: 12, Text: "hello", VideoId: 12, IsDeleted: 0}
+	comment := model.Comment{CreatorUid: 12, Text: "hello", VideoId: 12}
 	Init()
 	_, err := CreateComment(&comment)
 	if err != nil {
@@ -26,8 +26,21 @@ func TestQueryCommentByCommentId(t *testing.T) {
 func TestDeleteComment(t *testing.T) {
 	fmt.Println("delete")
 	Init()
-	err := DeleteComment(0)
+	err := DeleteComment(1)
 	if err != nil {
 		return
+	}
+}
+
+func TestQueryCommentsByVideoId(t *testing.T) {
+	fmt.Println("TestQueryCommentsByVideoId")
+	Init()
+	comments, err := QueryCommentsByVideoId(2)
+	if err != nil {
+		return
+	}
+
+	for _, comment := range comments {
+		fmt.Println(comment)
 	}
 }
