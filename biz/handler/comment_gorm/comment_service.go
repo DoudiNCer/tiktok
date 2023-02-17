@@ -62,7 +62,7 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 		}
 
 		//查看是否关注自己
-		self, err := mysql.QueryFollowSelf(userId)
+		self, err := mysql.QueryIfFollowSomeone(userId, userId)
 		if err != nil {
 			return
 		}
