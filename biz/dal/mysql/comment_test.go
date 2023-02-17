@@ -26,8 +26,21 @@ func TestQueryCommentByCommentId(t *testing.T) {
 func TestDeleteComment(t *testing.T) {
 	fmt.Println("delete")
 	Init()
-	err := DeleteComment(0)
+	err := DeleteComment(1)
 	if err != nil {
 		return
+	}
+}
+
+func TestQueryCommentsByVideoId(t *testing.T) {
+	fmt.Println("TestQueryCommentsByVideoId")
+	Init()
+	comments, err := QueryCommentsByVideoId(2)
+	if err != nil {
+		return
+	}
+
+	for _, comment := range comments {
+		fmt.Println(comment)
 	}
 }
