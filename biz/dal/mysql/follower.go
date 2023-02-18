@@ -48,11 +48,20 @@ func QueryFollower(uid int64) ([]*model.Follower, int64, error) {
 	return res, total, nil
 }
 
-// QueryIfFollowSomeone 查询是否存在关注的关系
-func QueryIfFollowSomeone(commentCreatorId int64, userID int64) (int64, error) {
+func QueryForCheck(uid, toUid int64) (*model.Follower, int64, error) {
 	db := DB.Model(model.Follower{})
-	db.Where(model.Follower{ToUserUid: commentCreatorId, UserUid: userID}).Where("Is_deleted = 0")
+	db = db.Where("user_uid = ?", uid)
+	db = db.Where("to_user_uid = ?", toUid)
+
 	var total int64
-	err := db.Count(&total).Error
-	return total, err
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var res *model.Follower
+	if err := db.Find(&res).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return res, total, nil
 }
