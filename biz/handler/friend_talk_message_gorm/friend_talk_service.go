@@ -30,7 +30,7 @@ func GetChatMessage(ctx context.Context, c *app.RequestContext) {
 	}
 	userId := key.UserId
 
-	messages, err := mysql.QueryMessage(userId)
+	messages, err := mysql.QueryMessageAfterCheck(userId, req.PreMsgTime)
 	if err != nil {
 		c.JSON(consts.StatusOK, &friend_talk_message_gorm.GetChatMessageResponse{StatusCode: friend_talk_message_gorm.Code_DBErr, StatusMsg: err.Error()})
 		return

@@ -7,17 +7,17 @@ func CreateMessage(messages []*model.Message) error {
 	return DB.Create(messages).Error
 }
 
-// 获取与某用户有关的消息
-func QueryMessage(uid int64) ([]*model.Message, error) {
-	db := DB.Model(model.Message{})
-	db = db.Where("listener_id = ? or reciver_id = ?", uid, uid)
-
-	var res []*model.Message
-	if err := db.Find(&res).Error; err != nil {
-		return nil, err
-	}
-	return res, nil
-}
+//// 获取与某用户有关的消息
+//func QueryMessage(uid int64) ([]*model.Message, error) {
+//	db := DB.Model(model.Message{})
+//	db = db.Where("listener_id = ? or reciver_id = ?", uid, uid)
+//
+//	var res []*model.Message
+//	if err := db.Find(&res).Error; err != nil {
+//		return nil, err
+//	}
+//	return res, nil
+//}
 
 // 获取两人交流的最后一条消息
 func QueryLastMessage(userId, friendId int64) (message *model.Message, msgType int64, err error) {
@@ -37,4 +37,16 @@ func QueryLastMessage(userId, friendId int64) (message *model.Message, msgType i
 		msgType = 1
 	}
 	return msg, msgType, err
+}
+
+// 获取与某用户有关的消息（限制一段时间后）
+func QueryMessageAfterCheck(uid, after int64) ([]*model.Message, error) {
+	db := DB.Model(model.Message{})
+	db = db.Where("create_time > ? and (listener_id = ? or reciver_id = ?)", after, uid, uid)
+
+	var res []*model.Message
+	if err := db.Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
 }
