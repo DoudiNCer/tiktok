@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/DodiNCer/tiktok/biz/dal"
+	"github.com/DodiNCer/tiktok/biz/mw"
 	"github.com/DodiNCer/tiktok/biz/router"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
@@ -11,6 +12,7 @@ import (
 func main() {
 	h := server.Default()
 	dal.Init()
+	mw.InitRedis()
 	router.Register(h)
 	h.Spin()
 }

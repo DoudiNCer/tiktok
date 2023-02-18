@@ -1,6 +1,6 @@
 module github.com/DodiNCer/tiktok
 
-go 1.19
+go 1.18
 
 require (
 	github.com/apache/thrift v0.13.0
@@ -26,6 +26,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/gomodule/redigo v1.8.9 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

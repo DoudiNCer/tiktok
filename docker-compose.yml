@@ -7,7 +7,7 @@ services:
       - ./biz/dal/sql:/docker-entrypoint-initdb.d
       - ./sqldb:/var/lib/mysql
     ports:
-      - 13306:3306
+      - "13306:3306"
     environment:
       - MYSQL_DATABASE=tiktok
       - MYSQL_USER=tiktok
@@ -16,4 +16,4 @@ services:
   redis:
     image: 'redis:6'
     ports:
-      - 16379:6379
+      - "16379:6379"
