@@ -5,7 +5,7 @@ import (
 )
 
 func QueryCommentByCommentId(commentId int64) (comment *model.Comment, err error) {
-	err = DB.Where(model.Comment{Id: commentId, IsDeleted: 0}).Find(&comment).Error
+	err = DB.Where(model.Comment{Id: commentId}).Where("is_deleted = 0").Find(&comment).Error
 	return comment, nil
 }
 
@@ -15,11 +15,11 @@ func CreateComment(comment *model.Comment) (*model.Comment, error) {
 }
 
 func DeleteComment(commentId int64) error {
-	return DB.Where(model.Comment{Id: commentId}).Updates(model.Comment{IsDeleted: 1}).Error
+	return DB.Model(model.Comment{}).Where(model.Comment{Id: commentId}).Updates(map[string]interface{}{"is_deleted": 1}).Error
 }
 
 func QueryCommentsByVideoId(videoId int64) ([]*model.Comment, error) {
 	var comments []*model.Comment
-	err := DB.Where(model.Comment{VideoId: videoId}).Find(&comments).Error
+	err := DB.Model(model.Comment{}).Where("video_id = ? AND is_deleted = 0", videoId).Find(&comments).Error
 	return comments, err
 }

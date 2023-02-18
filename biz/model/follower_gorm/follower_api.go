@@ -17,6 +17,7 @@ const (
 	Code_ParamInvalid Code = 1
 	Code_DBErr        Code = 2
 	Code_RTErr        Code = 3
+	Code_TokenErr     Code = 4
 )
 
 func (p Code) String() string {
@@ -29,6 +30,8 @@ func (p Code) String() string {
 		return "DBErr"
 	case Code_RTErr:
 		return "RTErr"
+	case Code_TokenErr:
+		return "TokenErr"
 	}
 	return "<UNSET>"
 }
@@ -43,6 +46,8 @@ func CodeFromString(s string) (Code, error) {
 		return Code_DBErr, nil
 	case "RTErr":
 		return Code_RTErr, nil
+	case "TokenErr":
+		return Code_TokenErr, nil
 	}
 	return Code(0), fmt.Errorf("not a valid Code string")
 }

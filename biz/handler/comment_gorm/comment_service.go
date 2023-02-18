@@ -34,6 +34,12 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 	userId := key.UserId
 
 	if req.ActionType == 1 {
+
+		if len(req.CommentText) == 0 {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_ParamInvalid, StatusMsg: "不能发空字符串"})
+			return
+		}
+
 		comment, err := mysql.CreateComment(&model.Comment{CreatorUid: userId, Text: req.CommentText, VideoId: req.VideoID, CreatedAt: time.Now()})
 		if err != nil {
 			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})

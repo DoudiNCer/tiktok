@@ -5,6 +5,7 @@ enum Code {
      ParamInvalid    = 1
      DBErr           = 2
      RTErr           = 3
+     TokenErr        = 4
 }
 
 struct User {

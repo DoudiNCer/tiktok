@@ -7,6 +7,7 @@ import (
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
 	follower_gorm "github.com/DodiNCer/tiktok/biz/model/follower_gorm"
+	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"strconv"
@@ -20,33 +21,47 @@ func CreateFollower(ctx context.Context, c *app.RequestContext) {
 	var req follower_gorm.CreateFollowerRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
+		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: "非法参数"})
 		return
 	}
 
+	//鉴权
+	token, err := util.CheckToken(req.Token)
+	if err != nil {
+		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
+		return
+	}
+
+	//从token中获取user_id
+	userId := token.UserId
 	//从请求中获取to_user_id
 	toUserUid := req.ToUserID
-	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
+	//获取当前时间
+	currentTime := time.Now()
+
+	_, total, err := mysql.QueryForCheck(userId, toUserUid)
+	if total != 0 || err != nil {
+		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: "不可重复关注"})
 		return
 	}
 
 	//在follower表中创建记录
 	if err = mysql.CreateFollower([]*model.Follower{
 		{
+			UserUid:    userId,
 			ToUserUid:  toUserUid,
-			UserUid:    2,
-			CreateTime: time.Now(),
+			CreateTime: currentTime,
+			UpdateTime: currentTime,
 			IsDeleted:  false,
-			UpdateTime: time.Now(),
 		},
 	}); err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: "数据库创建失败"})
 		return
 	}
 
 	resp := new(follower_gorm.CreateFollowerResponse)
 	resp.StatusCode = follower_gorm.Code_Success
+	resp.StatusMsg = "关注成功"
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -58,10 +73,16 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 	var req follower_gorm.QueryFollowListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
+		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: "非法参数"})
 		return
 	}
 
+	//鉴权
+	_, err = util.CheckToken(req.Token)
+	if err != nil {
+		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
+		return
+	}
 	//从请求获取uid
 	userId := req.UserID
 	parseInt, err := strconv.ParseInt(userId, 10, 64)
@@ -117,5 +138,7 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 	resp.UserList = userList
 
 	resp.StatusCode = follower_gorm.Code_Success
+	resp.StatusMsg = "请求正常"
+
 	c.JSON(200, resp)
 }
