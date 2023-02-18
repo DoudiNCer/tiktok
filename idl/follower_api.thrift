@@ -16,6 +16,20 @@ struct User {
     bool is_follow // true-已关注，false-未关注
 }
 
+struct UserFollower {
+    i64 id // 用户id
+    string name // 用户名称
+    i64 follow_count // 关注总数
+    i64 follower_count // 粉丝总数
+    bool is_follow // true-已关注，false-未关注
+    string avatar //用户头像
+    string background_image //用户个人页顶部大图
+    string signature //个人简介
+    i64 total_favorited //获赞数量
+    i64 work_count //作品数量
+    i64 favorite_count //点赞数量
+}
+
 struct CreateFollowerRequest{
     1: string token       (api.query="token")
     2: i64 to_user_id  (api.query="to_user_id")
@@ -38,7 +52,19 @@ struct QueryFollowListResponse {
     3: list<User> user_list // 用户信息列表
 }
 
+struct QueryFollowerListRequest {
+    1: string user_id    (api.query="user_id") // 用户id
+    2: string token   (api.query="token")// 用户鉴权token
+}
+
+struct QueryFollowerListResponse {
+    1: Code status_code // 状态码，0-成功，其他值-失败
+    2: string status_msg // 返回状态描述
+    3: list<UserFollower> user_list // 用户信息列表
+}
+
 service FollowerService {
    CreateFollowerResponse CreateFollower(1:CreateFollowerRequest req)(api.post="/douyin/relation/action/")
    QueryFollowListResponse QueryFollowList(1:QueryFollowListRequest req)(api.get="/douyin/relation/follow/list/")
+   QueryFollowerListResponse QueryFollowerList(1:QueryFollowerListRequest req)(api.get="/douyin/relation/follower/list/")
 }

@@ -154,3 +154,19 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 
 	c.JSON(200, resp)
 }
+
+// QueryFollowerList .
+// @router /douyin/relation/follower/list/ [GET]
+func QueryFollowerList(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req follower_gorm.QueryFollowerListRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(follower_gorm.QueryFollowerListResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}

@@ -32,6 +32,13 @@ func Register(r *server.Hertz) {
 					_list.GET("/", append(_queryfollowlistMw(), follower_gorm.QueryFollowList)...)
 				}
 			}
+			{
+				_follower := _relation.Group("/follower", _followerMw()...)
+				{
+					_list0 := _follower.Group("/list", _list0Mw()...)
+					_list0.GET("/", append(_queryfollowerlistMw(), follower_gorm.QueryFollowerList)...)
+				}
+			}
 		}
 	}
 }
