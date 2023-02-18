@@ -19,6 +19,7 @@ import (
 func CreateFollower(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req follower_gorm.CreateFollowerRequest
+	resp := new(follower_gorm.CreateFollowerResponse)
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: "非法参数"})
@@ -26,7 +27,7 @@ func CreateFollower(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//鉴权
-	token, err := util.CheckToken(req.Token)
+	token, err := util.CheckToken(req.GetToken())
 	if err != nil {
 		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
 		return
@@ -39,29 +40,40 @@ func CreateFollower(ctx context.Context, c *app.RequestContext) {
 	//获取当前时间
 	currentTime := time.Now()
 
+	actionType := req.GetActionType()
 	_, total, err := mysql.QueryForCheck(userId, toUserUid)
-	if total != 0 || err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: "不可重复关注"})
-		return
+	if total != 0 {
+		err := mysql.UpdateFollower(userId, toUserUid, actionType)
+		if err != nil {
+			c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "非法参数action_type"})
+			return
+		}
+		if actionType == 1 {
+			resp.StatusMsg = "关注成功"
+		}
+		if actionType == 2 {
+			resp.StatusMsg = "取消关注成功"
+		}
+
+	}
+	if total == 0 {
+		//在follower表中创建记录
+		if err = mysql.CreateFollower([]*model.Follower{
+			{
+				UserUid:    userId,
+				ToUserUid:  toUserUid,
+				CreateTime: currentTime,
+				UpdateTime: currentTime,
+				IsDeleted:  false,
+			},
+		}); err != nil {
+			c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: "数据库创建失败"})
+			return
+		}
+		resp.StatusMsg = "关注成功"
 	}
 
-	//在follower表中创建记录
-	if err = mysql.CreateFollower([]*model.Follower{
-		{
-			UserUid:    userId,
-			ToUserUid:  toUserUid,
-			CreateTime: currentTime,
-			UpdateTime: currentTime,
-			IsDeleted:  false,
-		},
-	}); err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: "数据库创建失败"})
-		return
-	}
-
-	resp := new(follower_gorm.CreateFollowerResponse)
 	resp.StatusCode = follower_gorm.Code_Success
-	resp.StatusMsg = "关注成功"
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -78,13 +90,13 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//鉴权
-	_, err = util.CheckToken(req.Token)
+	_, err = util.CheckToken(req.GetToken())
 	if err != nil {
 		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
 		return
 	}
 	//从请求获取uid
-	userId := req.UserID
+	userId := req.GetUserID()
 	parseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})

@@ -1,15 +1,33 @@
 package mysql
 
 import (
+	"errors"
 	"github.com/DodiNCer/tiktok/biz/model"
+	"time"
 )
 
 func CreateFollower(followers []*model.Follower) error {
 	return DB.Create(followers).Error
 }
 
-func UpdateFollower(followers *model.Follower) error {
-	return DB.Updates(followers).Error
+func UpdateFollower(uid, toUid int64, actionType int32) error {
+	db := DB.Model(model.Follower{})
+	db = db.Where("user_uid = ?", uid).Where("to_user_uid = ?", toUid)
+	var status int32
+	if actionType == 1 {
+		status = 0
+	} else if actionType == 2 {
+		status = 1
+	} else {
+		return errors.New("非法参数actionType")
+	}
+	if err := db.Limit(1).Updates(map[string]interface{}{
+		"is_deleted":  status,
+		"update_time": time.Now(),
+	}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 // QueryFollow 查询关注
@@ -50,8 +68,7 @@ func QueryFollower(uid int64) ([]*model.Follower, int64, error) {
 
 func QueryForCheck(uid, toUid int64) (*model.Follower, int64, error) {
 	db := DB.Model(model.Follower{})
-	db = db.Where("user_uid = ?", uid)
-	db = db.Where("to_user_uid = ?", toUid)
+	db = db.Where("user_uid = ?", uid).Where("to_user_uid = ?", toUid)
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
