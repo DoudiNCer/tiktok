@@ -15,7 +15,7 @@ func UpdateFollower(followers *model.Follower) error {
 // QueryFollow 查询关注
 func QueryFollow(uid int64) ([]*model.Follower, int64, error) {
 	db := DB.Model(model.Follower{})
-	db = db.Where("user_uid = ?", uid)
+	db = db.Where("user_uid = ?", uid).Where("is_deleted = 0")
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
@@ -33,7 +33,7 @@ func QueryFollow(uid int64) ([]*model.Follower, int64, error) {
 // QueryFollower 查询粉丝
 func QueryFollower(uid int64) ([]*model.Follower, int64, error) {
 	db := DB.Model(model.Follower{})
-	db = db.Where("to_user_uid = ?", uid)
+	db = db.Where("to_user_uid = ?", uid).Where("is_deleted = 0")
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
@@ -64,4 +64,13 @@ func QueryForCheck(uid, toUid int64) (*model.Follower, int64, error) {
 	}
 
 	return res, total, nil
+}
+
+// QueryIfFollowSomeone 查询是否存在关注的关系
+func QueryIfFollowSomeone(commentCreatorId int64, userID int64) (int64, error) {
+	db := DB.Model(model.Follower{})
+	db.Where(model.Follower{ToUserUid: commentCreatorId, UserUid: userID})
+	var total int64
+	err := db.Count(&total).Error
+	return total, err
 }
