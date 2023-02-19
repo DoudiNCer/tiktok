@@ -70,11 +70,19 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 		//查看是否关注自己
 		self, err := mysql.QueryIfFollowSomeone(userId, userId)
 		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//获取用户的总点赞数
+		favoriteCount, err := mysql.QueryFavoriteCount(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
 
 		//封装用户响应数据
-		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1}
+		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount}
 
 		//封装评论响应数据
 		commentResp := comment_gorm.Comment{ID: comment.Id, User: &userResp, Content: comment.Text, CreateDate: comment.CreatedAt.Format("01-02")}
