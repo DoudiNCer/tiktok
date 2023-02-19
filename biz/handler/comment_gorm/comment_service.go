@@ -77,7 +77,7 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1}
 
 		//封装评论响应数据
-		commentResp := comment_gorm.Comment{ID: comment.Id, User: &userResp, Content: comment.Text, CreateDate: comment.CreatedAt.String()}
+		commentResp := comment_gorm.Comment{ID: comment.Id, User: &userResp, Content: comment.Text, CreateDate: comment.CreatedAt.Format("01-02")}
 
 		resp.Comment = &commentResp
 
@@ -173,7 +173,7 @@ func QueryCommentList(ctx context.Context, c *app.RequestContext) {
 		commentResp.ID = comment.Id
 		commentResp.User = &userResp
 		commentResp.Content = comment.Text
-		commentResp.CreateDate = comment.CreatedAt.String()
+		commentResp.CreateDate = comment.CreatedAt.Format("01-02")
 
 		//封装返回的评论集
 		commentsResp = append(commentsResp, &commentResp)
