@@ -1,7 +1,7 @@
 CREATE TABLE `comment`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `creator_uid` int NOT NULL,
-  `text` text NOT NULL,
+  `text` varchar(1000) NOT NULL,
   `video_id` int UNSIGNED NOT NULL,
   `is_deleted` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
   `update_time` datetime NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE `comment`  (
 );
 
 CREATE TABLE `favorite`  (
-  `id` int UNSIGNED NOT NULL,
+  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `creator_id` int UNSIGNED NOT NULL,
   `video_id` int UNSIGNED NOT NULL,
   `is_deleted` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
@@ -38,7 +38,7 @@ CREATE TABLE `message`  (
   `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `reciver_id` int UNSIGNED NOT NULL,
   `listener_id` int UNSIGNED NOT NULL COMMENT '接收者',
-  `text` text NOT NULL,
+  `text` varchar(2000) NOT NULL,
   `create_time` datetime NOT NULL,
   PRIMARY KEY (`id`)
 );
@@ -48,6 +48,9 @@ CREATE TABLE `user`  (
   `name` varchar(32) NOT NULL,
   `password` char(32) NOT NULL COMMENT 'MD5加盐处理',
   `create_time` datetime NOT NULL,
+  `portrait_path` varchar(255) NULL,
+  `background_picture_path` varchar(255) NULL COMMENT '背景图',
+  `signature` varchar(100) NULL COMMENT '个人简介',
   PRIMARY KEY (`id`),
   UNIQUE INDEX `uk_name`(`name`) USING BTREE
 );
