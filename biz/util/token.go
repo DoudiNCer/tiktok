@@ -43,6 +43,9 @@ func CheckToken(token string) (*MyClaims, error) {
 	setToken, _ := jwt.ParseWithClaims(token, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return JwtKey, nil
 	})
+	if setToken == nil {
+		return nil, errors.New("token错误")
+	}
 	key, _ := setToken.Claims.(*MyClaims)
 	if setToken.Valid {
 		return key, nil
