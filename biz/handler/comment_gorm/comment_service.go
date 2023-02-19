@@ -81,8 +81,22 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
+		//获取用户的作品及作品数量
+		workCount, err := mysql.QueryWorkCount(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//获取该用户作品的被点赞总数数
+		totalFavorited, err := mysql.QueryTotalFavorited(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
 		//封装用户响应数据
-		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount}
+		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount, WorkCount: workCount, TotalFavorited: totalFavorited}
 
 		//封装评论响应数据
 		commentResp := comment_gorm.Comment{ID: comment.Id, User: &userResp, Content: comment.Text, CreateDate: comment.CreatedAt.Format("01-02")}
