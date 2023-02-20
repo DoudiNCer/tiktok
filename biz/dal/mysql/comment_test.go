@@ -44,3 +44,12 @@ func TestQueryCommentsByVideoId(t *testing.T) {
 		fmt.Println(comment)
 	}
 }
+
+func TestQueryTotalFavorited(t *testing.T) {
+	Init()
+	favorited, err := QueryTotalFavorited(1)
+	if err != nil {
+		return
+	}
+	fmt.Println(favorited)
+}

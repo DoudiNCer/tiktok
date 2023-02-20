@@ -74,12 +74,13 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		//获取用户的总点赞数
+		/*//获取用户的总点赞数
 		favoriteCount, err := mysql.QueryFavoriteCount(userId)
 		if err != nil {
 			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
-		}
+		}*/
+		favoriteCount := int64(8)
 
 		//获取用户的作品及作品数量
 		workCount, err := mysql.QueryWorkCount(userId)
@@ -88,12 +89,13 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		//获取该用户作品的被点赞总数数
+		/*//获取该用户作品的被点赞总数数
 		totalFavorited, err := mysql.QueryTotalFavorited(userId)
 		if err != nil {
 			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
-		}
+		}*/
+		totalFavorited := int64(9)
 
 		//封装用户响应数据
 		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount, WorkCount: workCount, TotalFavorited: totalFavorited}
