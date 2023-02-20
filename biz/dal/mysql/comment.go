@@ -47,8 +47,8 @@ func QueryTotalFavorited(userId int64) (int64, error) {
 
 // QueryWorkCount 获取用户作品数量
 func QueryWorkCount(userId int64) (int64, error) {
+	sql := "SELECT COUNT(video.id) FROM video WHERE video.creator_id=?"
 	var count int64
-	DB = DB.Model(&model.Video{}).Where("creator_id = ? AND is_deleted = 0", userId)
-	err := DB.Count(&count).Error
+	err := DB.Raw(sql, userId).Scan(&count).Error
 	return count, err
 }
