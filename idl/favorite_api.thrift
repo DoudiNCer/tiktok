@@ -15,8 +15,8 @@ struct Video {
 
 struct FavoriteActionRequest {
     1: string token     (api.body="token")
-    2: i64 video_id     (api.body="video_id")
-    3: i32 action_type  (api.body="action_type")
+    2: i64 video_id     (api.body="video_id", api.vd="regex('^[0-9]*$')")
+    3: i32 action_type  (api.body="action_type", api.vd="$=1||$==2")
 }
 
 struct FavoriteActionResponse {
@@ -25,7 +25,7 @@ struct FavoriteActionResponse {
 }
 
 struct FavoriteListRequest {
-    1: i64 user_id  (api.query="user_id")
+    1: i64 user_id  (api.query="user_id", api.vd="regex('^[0-9]*$')")
     2: string token (api.query="token")
 }
 

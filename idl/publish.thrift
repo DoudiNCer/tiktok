@@ -3,7 +3,7 @@ namespace go publish_gorm
 include 'favorite_api.thrift'
 
 struct publishListRequest {
-    1: i64 user_id  (api.query="user_id")// 用户id
+    1: i64 user_id  (api.query="user_id", api.vd="regex('^[0-9]*$')")// 用户id
     2: string token    (api.query="token")// 用户鉴权token
 }
 

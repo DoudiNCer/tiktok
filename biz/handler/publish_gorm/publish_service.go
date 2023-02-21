@@ -55,7 +55,7 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 	var videoListRes []*favorite_gorm.Video
 
 	var videoList []*model.Video
-	var user model.User
+	var user *model.User
 	var followCount int64
 	var followerCount int64
 	var favoriteCount int64
@@ -63,17 +63,15 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 	var isbool int64
 	//数据库操作
 	err = func() error {
-		if err = mysql.DB.Where("id = ?", userId).Find(&user).Error; err != nil {
+		if user, err = mysql.QueryUserByUid(userId); err != nil {
 			return err
 		}
 		//查找视频作者关注总数
-		if err = mysql.DB.Model(&model.Follower{}).Where("user_uid = ? And is_deleted = ?", user.Id, 0).
-			Count(&followCount).Error; err != nil {
+		if _, followCount, err = mysql.QueryFollow(user.Id); err != nil {
 			return err
 		}
 		//查找视频作者粉丝总数
-		if err = mysql.DB.Model(&model.Follower{}).Where("to_user_uid = ? And is_deleted = ?", userId, 0).
-			Count(&followerCount).Error; err != nil {
+		if _, followerCount, err = mysql.QueryFollower(user.Id); err != nil {
 			return err
 		}
 		userRes := &follower_gorm.User{
@@ -84,20 +82,17 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 			IsFollow:      false,
 		}
 
-		if err = mysql.DB.Where("creator_id = ? AND is_deleted = ?", userId, 0).Find(&videoList).Error; err != nil {
+		if videoList, err = mysql.QueryVideoList(userId); err != nil {
 			return err
 		}
 		for _, video := range videoList {
-			if err = mysql.DB.Model(&model.Favorite{}).Where("video_id = ? AND is_deleted = ?", video.Id, 0).
-				Count(&favoriteCount).Error; err != nil {
+			if favoriteCount, err = mysql.QueryFavoriteNumByVideo(video.Id); err != nil {
 				return err
 			}
-			if err = mysql.DB.Model(&model.Comment{}).Where("video_id = ? AND is_deleted = ?", video.Id, 0).
-				Count(&commentCount).Error; err != nil {
+			if commentCount, err = mysql.QueryCommentCountByVideo(video.Id); err != nil {
 				return err
 			}
-			if err = mysql.DB.Model(&model.Favorite{}).Where("creator_id = ? AND video_id = ? AND is_deleted = ?", userId, video.Id, 0).
-				Count(&isbool).Error; err != nil {
+			if isbool, err = mysql.QueryFavoriteIs(userId, video.Id); err != nil {
 				return err
 			}
 			videoListRes = append(videoListRes, &favorite_gorm.Video{

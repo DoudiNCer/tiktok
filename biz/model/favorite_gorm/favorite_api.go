@@ -478,8 +478,8 @@ func (p *Video) String() string {
 
 type FavoriteActionRequest struct {
 	Token      string `thrift:"token,1" form:"token" json:"token"`
-	VideoID    int64  `thrift:"video_id,2" form:"video_id" json:"video_id"`
-	ActionType int32  `thrift:"action_type,3" form:"action_type" json:"action_type"`
+	VideoID    int64  `thrift:"video_id,2" form:"video_id" json:"video_id" vd:"regex('^[0-9]*$')"`
+	ActionType int32  `thrift:"action_type,3" form:"action_type" json:"action_type" vd:"$=1||$==2"`
 }
 
 func NewFavoriteActionRequest() *FavoriteActionRequest {
@@ -889,7 +889,7 @@ func (p *FavoriteActionResponse) String() string {
 }
 
 type FavoriteListRequest struct {
-	UserID int64  `thrift:"user_id,1" json:"user_id" query:"user_id"`
+	UserID int64  `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"regex('^[0-9]*$')"`
 	Token  string `thrift:"token,2" json:"token" query:"token"`
 }
 

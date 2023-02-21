@@ -138,55 +138,47 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 
 	//数据库操作
 	err = func() error {
-		var favoriteList []model.Favorite
-		if err = mysql.DB.Where("creator_id = ? AND is_deleted = ?", userId, 0).
-			Select("video_id").Find(&favoriteList).Error; err != nil {
+		var favorites []*model.Favorite
+		if favorites, err = mysql.QueryFavoritesByCreatorId(userId); err != nil {
 			return err
 		}
 
-		var video model.Video
-		var user model.User
+		var video *model.Video
+		var user *model.User
 		var followCount int64   //关注总数
 		var followerCount int64 //粉丝总数
 		var favoriteCount int64 //视频点赞总数
 		var commentCount int64  //视频评论总数
 		var isbool int64        //用户是否关注视频作者
+
 		//循环查找视频数据
-		for _, favorite := range favoriteList {
+		for _, favorite := range favorites {
 			//查找视频信息
-			if err = mysql.DB.Where("id = ? AND is_deleted = ?", favorite.VideoId, 0).Find(&video).Error; err != nil {
+			if video, err = mysql.QueryVideos(favorite.VideoId); err != nil {
 				return err
 			}
 			//查找视频作者信息
-			if err = mysql.DB.Where("id = ?", video.CreatorId).Find(&user).Error; err != nil {
+			if user, err = mysql.QueryUserByUid(video.CreatorId); err != nil {
 				return err
 			}
 			//查找视频作者关注总数
-			if err = mysql.DB.Model(&model.Follower{}).Where("user_uid = ? And is_deleted = ?", user.Id, 0).
-				Count(&followCount).Error; err != nil {
+			if _, followCount, err = mysql.QueryFollow(user.Id); err != nil {
 				return err
 			}
 			//查找视频作者粉丝总数
-			if err = mysql.DB.Model(&model.Follower{}).Where("to_user_uid = ? And is_deleted = ?", userId, 0).
-				Count(&followerCount).Error; err != nil {
+			if _, followerCount, err = mysql.QueryFollower(user.Id); err != nil {
 				return err
 			}
 			//查找视频点赞总数
-			if err = mysql.DB.Model(&model.Favorite{}).Where("video_id = ? AND is_deleted = ?", favorite.VideoId, 0).
-				Count(&favoriteCount).Error; err != nil {
+			if favoriteCount, err = mysql.QueryFavoriteNumByVideo(favorite.VideoId); err != nil {
 				return err
 			}
 			//查找视频评论总数
-			if err = mysql.DB.Model(&model.Comment{}).Where("video_id = ? AND is_deleted = ?", favorite.VideoId, 0).
-				Count(&commentCount).Error; err != nil {
+			if commentCount, err = mysql.QueryCommentCountByVideo(favorite.VideoId); err != nil {
 				return err
 			}
 			//查找用户是否关注视频作者
-			if err = mysql.DB.Model(&model.Follower{}).Where(map[string]interface{}{
-				"user_uid":    userId,
-				"to_user_uid": user.Id,
-				"is_deleted":  0,
-			}).Count(&isbool).Error; err != nil {
+			if isbool, err = mysql.QueryIfFollowSomeone(user.Id, userId); err != nil {
 				return err
 			}
 			//拼装数据
