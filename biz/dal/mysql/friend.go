@@ -3,15 +3,19 @@ package mysql
 import "github.com/DodiNCer/tiktok/biz/model"
 
 // 获取好友信息
-func QueryFriend(uid int64) ([]*model.User, error) {
+func QueryFriend(uid int64) (res []*model.User, err error) {
 	sql := "SELECT u.id AS 'id', u.`name` AS 'name'" +
 		"FROM follower AS f LEFT JOIN follower AS t ON f.to_user_uid = t.user_uid " +
 		"LEFT JOIN `user` AS u ON f.to_user_uid = u.id " +
 		"WHERE (f.is_deleted = 0 AND t.is_deleted = 0) " +
 		"AND (f.user_uid = ? AND t.to_user_uid = ?)"
-	var res []*model.User
-	DB.Raw(sql, uid, uid).Scan(res)
-	return res, nil
+	db := DB.Raw(sql, uid, uid)
+	err = db.Error
+	if err != nil {
+		return nil, err
+	}
+	db.Scan(res)
+	return
 }
 
 // 获取粉丝人数

@@ -55,6 +55,9 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 		frienduser := user
 		id := frienduser.Id
 		name := frienduser.Name
+		backgroundPicturePath := frienduser.BackgroundPicturePath
+		portraitPath := frienduser.PortraitPath
+		signature := frienduser.Signature
 
 		// 查询粉丝数
 		followerNum, err := mysql.QueryFollowerNum(id)
@@ -74,6 +77,16 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 			c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
+		// 查询视频数
+		videoNum := mysql.QueryVideoNumFromUser(id)
+		// 查询点赞数
+		favoriteCount := mysql.QueryNumOfVideoFavoriteByUser(id)
+		// 查询获赞数
+		favoriteGotByUser, err := mysql.QueryNumOfFavoriteGotByUser(id)
+		if err != nil {
+			c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
 		// 填充数据
 		friendSingle.ID = id
 		friendSingle.Name = name
@@ -82,6 +95,12 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 		friendSingle.FollowerCount = followerNum
 		friendSingle.Message = message.Text
 		friendSingle.MsgType = msgType
+		friendSingle.Avatar = portraitPath
+		friendSingle.BackgroundImage = backgroundPicturePath
+		friendSingle.Signature = signature
+		friendSingle.WorkCount = videoNum
+		friendSingle.FavoriteCount = favoriteCount
+		friendSingle.TotalFavorited = favoriteGotByUser
 		userList = append(userList, &friendSingle)
 	}
 
