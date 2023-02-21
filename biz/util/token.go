@@ -47,6 +47,10 @@ func CheckToken(token string) (*MyClaims, error) {
 	if setToken.Valid {
 		return key, nil
 	}
+	if !setToken.Valid {
+		return nil, errors.New("token错误")
+
+	}
 	if time.Now().Unix() > key.ExpiresAt {
 		return key, errors.New("token过期")
 	}
