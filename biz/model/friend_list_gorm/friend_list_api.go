@@ -63,8 +63,8 @@ func (p *Code) Value() (driver.Value, error) {
 }
 
 type GetFriendListRequest struct {
-	UserID string `thrift:"user_id,1" json:"user_id" query:"user_id"`
-	Token  string `thrift:"token,2" json:"token" query:"token"`
+	UserID string `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"$>=0"`
+	Token  string `thrift:"token,2" json:"token" query:"token" vd:"!nil"`
 }
 
 func NewGetFriendListRequest() *GetFriendListRequest {
@@ -262,11 +262,7 @@ type FriendUser struct {
 }
 
 func NewFriendUser() *FriendUser {
-	return &FriendUser{
-
-		WorkCount:     10,
-		FavoriteCount: 11,
-	}
+	return &FriendUser{}
 }
 
 func (p *FriendUser) GetID() (v int64) {
