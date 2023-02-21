@@ -43,12 +43,13 @@ func CheckToken(token string) (*MyClaims, error) {
 	setToken, _ := jwt.ParseWithClaims(token, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return JwtKey, nil
 	})
-	if setToken == nil {
-		return nil, errors.New("token错误")
-	}
 	key, _ := setToken.Claims.(*MyClaims)
 	if setToken.Valid {
 		return key, nil
+	}
+	if !setToken.Valid {
+		return nil, errors.New("token错误")
+
 	}
 	if time.Now().Unix() > key.ExpiresAt {
 		return key, errors.New("token过期")
