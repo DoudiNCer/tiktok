@@ -384,9 +384,9 @@ func (p *Message) String() string {
 }
 
 type GetChatMessageRequest struct {
-	Token      string `thrift:"token,1" form:"token" json:"token" query:"token"`
-	ToUserID   int64  `thrift:"to_user_id,2" form:"to_user_id" json:"to_user_id" query:"to_user_id"`
-	PreMsgTime int64  `thrift:"pre_msg_time,3" form:"pre_msg_time" json:"pre_msg_time" query:"pre_msg_time"`
+	Token      string `thrift:"token,1" json:"token" query:"token" vd:"!nil"`
+	ToUserID   int64  `thrift:"to_user_id,2" json:"to_user_id" query:"to_user_id" vd:"$>0"`
+	PreMsgTime int64  `thrift:"pre_msg_time,3" json:"pre_msg_time" query:"pre_msg_time" vd:"$>0"`
 }
 
 func NewGetChatMessageRequest() *GetChatMessageRequest {
@@ -861,10 +861,10 @@ func (p *GetChatMessageResponse) String() string {
 }
 
 type PostMessageActionRequest struct {
-	Token      string `thrift:"token,1" form:"token" json:"token" query:"token"`
-	ToUserID   int64  `thrift:"to_user_id,2" form:"to_user_id" json:"to_user_id" query:"to_user_id"`
-	ActionType int32  `thrift:"action_type,3" form:"action_type" json:"action_type" query:"action_type"`
-	Content    string `thrift:"content,4" form:"content" json:"content" query:"content"`
+	Token      string `thrift:"token,1" json:"token" query:"token" vd:"!nil"`
+	ToUserID   int64  `thrift:"to_user_id,2" json:"to_user_id" query:"to_user_id" vd:"$>0"`
+	ActionType int32  `thrift:"action_type,3" json:"action_type" query:"action_type" vd:"$>0"`
+	Content    string `thrift:"content,4" json:"content" query:"content"`
 }
 
 func NewPostMessageActionRequest() *PostMessageActionRequest {
