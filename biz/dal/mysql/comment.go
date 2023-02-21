@@ -47,8 +47,17 @@ func QueryTotalFavorited(userId int64) (int64, error) {
 
 // QueryWorkCount 获取用户作品数量
 func QueryWorkCount(userId int64) (int64, error) {
-	sql := "SELECT COUNT(video.id) FROM video WHERE video.creator_id=?"
+	sql := "SELECT COUNT(video.id) FROM video WHERE video.creator_id=? AND is_deleted = 0"
 	var count int64
 	err := DB.Raw(sql, userId).Scan(&count).Error
 	return count, err
+}
+
+// QueryPortraitPathByUserId 根据用户ID查询用户头像
+
+func QueryPortraitPathByUserId(userId int64) (string, error) {
+	sql := "SELECT `user`.portrait_path FROM user WHERE `user`.id = ? ;"
+	var PortraitPath string
+	err := DB.Raw(sql, userId).Scan(&PortraitPath).Error
+	return PortraitPath, err
 }

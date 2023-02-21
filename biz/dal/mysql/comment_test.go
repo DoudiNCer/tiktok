@@ -53,3 +53,12 @@ func TestQueryTotalFavorited(t *testing.T) {
 	}
 	fmt.Println(favorited)
 }
+
+func TestQueryPortraitPathByUserId(t *testing.T) {
+	Init()
+	portraitPath, err := QueryPortraitPathByUserId(22)
+	if err != nil {
+		return
+	}
+	fmt.Println(portraitPath)
+}

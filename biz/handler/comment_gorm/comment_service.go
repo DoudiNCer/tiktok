@@ -94,10 +94,18 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
-		//workCount := int64(12)
+
+		//获取用户头像
+		portraitPath, err := mysql.QueryPortraitPathByUserId(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
 
 		//封装用户响应数据
-		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount, WorkCount: workCount, TotalFavorited: totalFavorited}
+		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount, WorkCount: workCount, TotalFavorited: totalFavorited,
+			Avatar: portraitPath,
+		}
 
 		//封装评论响应数据
 		commentResp := comment_gorm.Comment{ID: comment.Id, User: &userResp, Content: comment.Text, CreateDate: comment.CreatedAt.Format("01-02")}
@@ -183,6 +191,27 @@ func QueryCommentList(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
+		//获取用户的总点赞数
+		favoriteCount, err := mysql.QueryFavoriteCount(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//获取该用户作品的被点赞总数数
+		totalFavorited, err := mysql.QueryTotalFavorited(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
+		//获取用户的作品及作品数量
+		workCount, err := mysql.QueryWorkCount(userId)
+		if err != nil {
+			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+
 		//封装每个评论的用户集
 		var userResp comment_gorm.User
 		userResp.ID = comment.CreatorUid
@@ -190,6 +219,9 @@ func QueryCommentList(ctx context.Context, c *app.RequestContext) {
 		userResp.FollowCount = followTotal
 		userResp.FollowerCount = followerTotal
 		userResp.IsFollow = isFollow == 1
+		userResp.FavoriteCount = favoriteCount
+		userResp.TotalFavorited = totalFavorited
+		userResp.WorkCount = workCount
 
 		//封装返回的评论
 		var commentResp comment_gorm.Comment
