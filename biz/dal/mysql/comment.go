@@ -61,3 +61,19 @@ func QueryPortraitPathByUserId(userId int64) (string, error) {
 	err := DB.Raw(sql, userId).Scan(&PortraitPath).Error
 	return PortraitPath, err
 }
+
+// QueryBackgroundImageByUserId 根据用户ID获取用户个人页顶部大图
+func QueryBackgroundImageByUserId(userId int64) (string, error) {
+	sql := "SELECT `user`.background_picture_path FROM user WHERE `user`.id = ? ;"
+	var backgroundImage string
+	err := DB.Raw(sql, userId).Scan(&backgroundImage).Error
+	return backgroundImage, err
+}
+
+// QuerySignatureByUserId 根据用户ID获取用户个人简介
+func QuerySignatureByUserId(userId int64) (string, error) {
+	sql := "SELECT `user`.signature FROM user WHERE `user`.id = ?;"
+	var signature string
+	err := DB.Raw(sql, userId).Scan(&signature).Error
+	return signature, err
+}

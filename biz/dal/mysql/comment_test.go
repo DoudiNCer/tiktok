@@ -62,3 +62,21 @@ func TestQueryPortraitPathByUserId(t *testing.T) {
 	}
 	fmt.Println(portraitPath)
 }
+
+func TestQueryBackgroundImageByUserId(t *testing.T) {
+	Init()
+	id, err := QueryBackgroundImageByUserId(22)
+	if err != nil {
+		return
+	}
+	fmt.Println(id)
+}
+
+func TestQuerySignatureByUserId(t *testing.T) {
+	Init()
+	id, err := QuerySignatureByUserId(22)
+	if err != nil {
+		return
+	}
+	fmt.Println(id)
+}
