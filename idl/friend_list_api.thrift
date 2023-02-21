@@ -8,8 +8,8 @@ enum Code {
 }
 
 struct GetFriendListRequest{
-    1: string user_id       (api.query="user_id")
-    2: string token         (api.query="token")
+    1: string user_id       (api.query="user_id", api.vd="$>=0")
+    2: string token         (api.query="token", api.vd="!nil")
 }
 
 struct FriendUser{

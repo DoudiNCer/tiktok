@@ -15,9 +15,9 @@ struct Message{
     string create_time
 }
 struct GetChatMessageRequest{
-    1: string token
-    2: i64 to_user_id
-    3: i64 pre_msg_time
+    1: string token         (api.query="token", api.vd="!nil")
+    2: i64 to_user_id       (api.query="to_user_id", api.vd="$>0")
+    3: i64 pre_msg_time     (api.query="pre_msg_time", api.vd="$>0")
 }
 
 struct GetChatMessageResponse{
@@ -27,10 +27,10 @@ struct GetChatMessageResponse{
 }
 
 struct PostMessageActionRequest{
-    1: string token
-    2: i64 to_user_id
-    3: i32 action_type
-    4: string content
+    1: string token         (api.query="token", api.vd="!nil")
+    2: i64 to_user_id       (api.query="to_user_id", api.vd="$>0")
+    3: i32 action_type      (api.query="action_type", api.vd="$>0")
+    4: string content       (api.query="content")
 }
 
 struct PostMessageActionResponse{
