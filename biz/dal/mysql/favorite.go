@@ -23,6 +23,8 @@ func QueryNumOfFavoriteGotByUser(uid int64) (count int64, err error) {
 	}
 	db.Scan(count)
 	return
+}
+
 // 查询用户所有的点赞信息
 func QueryFavoritesByCreatorId(creatorId int64) ([]*model.Favorite, error) {
 	var favorites []*model.Favorite

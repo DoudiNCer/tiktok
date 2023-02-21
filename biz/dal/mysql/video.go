@@ -8,6 +8,8 @@ func QueryVideoNumFromUser(uid int64) int64 {
 	db := DB.Model(&model.Video{})
 	db.Where("video.creator_id = ? AND is_deleted != TRUE", uid).Count(&count)
 	return count
+}
+
 // 查找视频信息
 func QueryVideos(videoId int64) (*model.Video, error) {
 	var video *model.Video
