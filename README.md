@@ -15,3 +15,9 @@ docker-compose up -d
 ```
 2. 暂停项目使用`docker-compose stop`，再次启动使用`docker-compose start`
 3. 运行项目（暂时手动运行，端口8086）
+4. 若修改了数据库格式，请按照以下步骤重新初始化数据库：
+```shell
+docker-compose down
+sudo rm -rf ./sqldb/*
+docker-compose up -d
+```

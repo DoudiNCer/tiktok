@@ -77,3 +77,10 @@ func QuerySignatureByUserId(userId int64) (string, error) {
 	err := DB.Raw(sql, userId).Scan(&signature).Error
 	return signature, err
 }
+
+func QueryCommentCountByVideo(videoId int64) (int64, error) {
+	var commentCount int64
+	err := DB.Model(&model.Comment{}).Where("video_id = ? AND is_deleted = ?", videoId, 0).
+		Count(&commentCount).Error
+	return commentCount, err
+}
