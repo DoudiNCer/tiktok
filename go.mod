@@ -9,6 +9,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
 	github.com/minio/minio-go/v7 v7.0.49
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	golang.org/x/crypto v0.6.0
 	gorm.io/driver/mysql v1.4.6
 	gorm.io/gorm v1.24.5
