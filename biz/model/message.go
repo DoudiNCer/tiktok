@@ -10,6 +10,6 @@ type Message struct {
 	CreatedAt   time.Time `coumn:"create_time"`
 }
 
-func (m *Message) Tablename() string {
+func (m *Message) TableName() string {
 	return "message"
 }

@@ -163,12 +163,13 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 
 		var video *model.Video
 		var user *model.User
-		var followCount int64   //关注总数
-		var followerCount int64 //粉丝总数
-		var favoriteCount int64 //视频点赞总数
-		var commentCount int64  //视频评论总数
-		var isbool int64        //用户是否关注视频作者
-
+		var followCount int64         //关注总数
+		var followerCount int64       //粉丝总数
+		var favoriteCount int64       //视频点赞总数
+		var commentCount int64        //视频评论总数
+		var isbool int64              //用户是否关注视频作者
+		var workCount int64           //视频作者作品数量
+		var workerFavoriteCount int64 //视频作者点赞数
 		//循环查找视频数据
 		for _, favorite := range favorites {
 			//查找视频信息
@@ -205,6 +206,7 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 			if commentCount, err = mysql.QueryCommentCountByVideo(favorite.VideoId); err != nil {
 				return err
 			}
+
 			//查找用户是否关注视频作者
 			if v, found := common.CacheManager.Get(strconv.FormatInt(user.Id, 10) + strconv.FormatInt(userId, 10) + common.KeyFollowIs); found == true {
 				isbool = v.(int64)
@@ -213,6 +215,13 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 			} else {
 				common.CacheManager.Set(strconv.FormatInt(user.Id, 10)+strconv.FormatInt(userId, 10)+common.KeyFollowIs, isbool, cache.DefaultExpiration)
 			}
+
+			//查找视频作者作品数量
+			workCount = mysql.QueryVideoNumFromUser(user.Id)
+
+			//查找视频作者点赞数量
+			workerFavoriteCount = mysql.QueryNumOfVideoFavoriteByUser(user.Id)
+
 			//拼装数据
 			videoList = append(videoList, &favorite_gorm.Video{
 				ID: video.Id,
@@ -228,6 +237,12 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 							return false
 						}
 					}(),
+					Avatar:          user.PortraitPath,
+					BackgroundImage: user.BackgroundPicturePath,
+					Signature:       user.Signature,
+					TotalFavorited:  followerCount,
+					WorkCount:       workCount,
+					FavoriteCount:   workerFavoriteCount,
 				},
 				PlayURL:       video.Path,
 				CoverURL:      video.CoverPath,
