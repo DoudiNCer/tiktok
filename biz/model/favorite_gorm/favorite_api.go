@@ -477,9 +477,9 @@ func (p *Video) String() string {
 }
 
 type FavoriteActionRequest struct {
-	Token      string `thrift:"token,1" form:"token" json:"token"`
-	VideoID    int64  `thrift:"video_id,2" form:"video_id" json:"video_id" vd:"regex('^[0-9]*$')"`
-	ActionType int32  `thrift:"action_type,3" form:"action_type" json:"action_type" vd:"$=1||$==2"`
+	Token      string `thrift:"token,1" json:"token" query:"token"`
+	VideoID    int64  `thrift:"video_id,2" json:"video_id" query:"video_id"`
+	ActionType int32  `thrift:"action_type,3" json:"action_type" query:"action_type"`
 }
 
 func NewFavoriteActionRequest() *FavoriteActionRequest {

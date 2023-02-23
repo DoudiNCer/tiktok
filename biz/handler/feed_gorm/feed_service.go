@@ -37,10 +37,13 @@ func QueryFeedList(ctx context.Context, c *app.RequestContext) {
 	if token != "" {
 		checkToken, err := util.CheckToken(token)
 		if err != nil {
+			c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+				StatusCode: follower_gorm.Code_DBErr,
+				StatusMsg:  err.Error(),
+			})
 			return
 		}
 		uid = checkToken.UserId
-
 	}
 
 	var videoListRes []*favorite_gorm.Video
