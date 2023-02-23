@@ -9,6 +9,7 @@ import (
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/follower_gorm"
 	"github.com/DodiNCer/tiktok/biz/util"
+	"github.com/patrickmn/go-cache"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -92,6 +93,20 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 			StatusMsg:  err.Error(),
 		})
 	}
+
+	var creatorId int64
+	var video *model.Video
+	if v, found := common.CacheManager.Get(strconv.FormatInt(videoId, 10) + common.KeyVideoCreator); found == true {
+		creatorId = v.(int64)
+	} else if video, err = mysql.QueryVideos(videoId); err != nil {
+
+	} else {
+		creatorId = video.Id
+		common.CacheManager.Set(strconv.FormatInt(videoId, 10)+common.KeyVideoCreator, creatorId, cache.DefaultExpiration)
+	}
+
+	common.CacheManager.Delete(strconv.FormatInt(creatorId, 10) + strconv.FormatInt(userId, 10) + common.KeyFavoriteIs)
+
 	//删除user信息相关缓存
 	common.DeleteUserReferTo(strconv.FormatInt(userId, 10))
 	resp := new(favorite_gorm.FavoriteActionResponse)
@@ -157,13 +172,23 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 		//循环查找视频数据
 		for _, favorite := range favorites {
 			//查找视频信息
-			if video, err = mysql.QueryVideos(favorite.VideoId); err != nil {
+			if v, found := common.CacheManager.Get(strconv.FormatInt(favorite.VideoId, 10) + common.KeyVideoFavorite); found == true {
+				video = v.(*model.Video)
+			} else if video, err = mysql.QueryVideos(favorite.VideoId); err != nil {
 				return err
+			} else {
+				common.CacheManager.Set(strconv.FormatInt(favorite.VideoId, 10)+common.KeyVideoFavorite, video, cache.DefaultExpiration)
 			}
+
 			//查找视频作者信息
-			if user, err = mysql.QueryUserByUid(video.CreatorId); err != nil {
+			if v, found := common.CacheManager.Get(strconv.FormatInt(video.CreatorId, 10) + common.KeyUserFavorite); found == true {
+				user = v.(*model.User)
+			} else if user, err = mysql.QueryUserByUid(video.CreatorId); err != nil {
 				return err
+			} else {
+				common.CacheManager.Set(strconv.FormatInt(video.CreatorId, 10)+common.KeyUserFavorite, user, cache.DefaultExpiration)
 			}
+
 			//查找视频作者关注总数
 			if _, followCount, err = mysql.QueryFollow(user.Id); err != nil {
 				return err
@@ -181,8 +206,12 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 				return err
 			}
 			//查找用户是否关注视频作者
-			if isbool, err = mysql.QueryIfFollowSomeone(user.Id, userId); err != nil {
+			if v, found := common.CacheManager.Get(strconv.FormatInt(user.Id, 10) + strconv.FormatInt(userId, 10) + common.KeyFollowIs); found == true {
+				isbool = v.(int64)
+			} else if isbool, err = mysql.QueryIfFollowSomeone(user.Id, userId); err != nil {
 				return err
+			} else {
+				common.CacheManager.Set(strconv.FormatInt(user.Id, 10)+strconv.FormatInt(userId, 10)+common.KeyFollowIs, isbool, cache.DefaultExpiration)
 			}
 			//拼装数据
 			videoList = append(videoList, &favorite_gorm.Video{

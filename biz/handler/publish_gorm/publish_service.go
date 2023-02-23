@@ -16,6 +16,7 @@ import (
 	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/patrickmn/go-cache"
 	"strconv"
 )
 
@@ -97,8 +98,12 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 			if commentCount, err = mysql.QueryCommentCountByVideo(video.Id); err != nil {
 				return err
 			}
-			if isbool, err = mysql.QueryFavoriteIs(userId, video.Id); err != nil {
+			if v, found := common.CacheManager.Get(strconv.FormatInt(userId, 10) + strconv.FormatInt(video.Id, 10) + common.KeyFavoriteIs); found == true {
+				isbool = v.(int64)
+			} else if isbool, err = mysql.QueryFavoriteIs(userId, video.Id); err != nil {
 				return err
+			} else {
+				common.CacheManager.Set(strconv.FormatInt(userId, 10)+strconv.FormatInt(video.Id, 10)+common.KeyFavoriteIs, isbool, cache.DefaultExpiration)
 			}
 			videoListRes = append(videoListRes, &favorite_gorm.Video{
 				ID:            video.Id,
