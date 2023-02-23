@@ -1,6 +1,9 @@
 package mysql
 
-import "github.com/DodiNCer/tiktok/biz/model"
+import (
+	"github.com/DodiNCer/tiktok/biz/model"
+	"time"
+)
 
 // 查询用户投稿视频数
 func QueryVideoNumFromUser(uid int64) int64 {
@@ -21,4 +24,17 @@ func QueryVideoList(creatorId int64) ([]*model.Video, error) {
 	var videoList []*model.Video
 	err := DB.Where("creator_id = ? AND is_deleted = ?", creatorId, 0).Find(&videoList).Error
 	return videoList, err
+}
+
+func CreatVideo(userId int64, title string, path string, coverPath string) error {
+	err := DB.Create(&model.Video{
+		Title:      title,
+		Path:       path,
+		CreatorId:  userId,
+		CreateTime: time.Time{},
+		CoverPath:  coverPath,
+		IsDeleted:  false,
+		UpdateTime: time.Time{},
+	}).Error
+	return err
 }

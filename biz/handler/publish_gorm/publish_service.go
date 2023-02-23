@@ -3,12 +3,14 @@
 package publish_gorm
 
 import (
+	"bytes"
 	"context"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/favorite_gorm"
 	"github.com/DodiNCer/tiktok/biz/model/follower_gorm"
 	"github.com/DodiNCer/tiktok/biz/model/publish_gorm"
+	"github.com/DodiNCer/tiktok/biz/mw"
 	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -123,5 +125,76 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(publish_gorm.PublishListResponse)
 	resp.VideoList = videoListRes
+	c.JSON(consts.StatusOK, resp)
+}
+
+// PublishAction .
+// @router /douyin/publish/action/ [POST]
+func PublishAction(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req publish_gorm.PublishActionRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	token := req.Token
+	data := req.Data
+	title := req.Title
+	if err != nil {
+		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+			StatusCode: follower_gorm.Code_RTErr,
+			StatusMsg:  err.Error(),
+		})
+	}
+
+	key, err := util.CheckToken(token)
+
+	id := key.UserId
+
+	user, err := mysql.QueryUserByUid(id)
+	if err != nil || user.Id == 0 {
+		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+			StatusCode: follower_gorm.Code_DBErr,
+			StatusMsg:  err.Error(),
+		})
+	}
+
+	//上传视频
+	videoReader := bytes.NewReader(data)
+
+	videoName, err := util.MinioUploadVideo(videoReader, videoReader.Size())
+	if err != nil {
+		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+			StatusCode: follower_gorm.Code_DBErr,
+			StatusMsg:  err.Error(),
+		})
+	}
+
+	//获取视频封面
+
+	//上传视频封面
+	var coverReader *bytes.Reader
+	photo, err := util.MinioUploadPhoto(coverReader, coverReader.Size())
+	if err != nil {
+		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+			StatusCode: follower_gorm.Code_DBErr,
+			StatusMsg:  err.Error(),
+		})
+	}
+
+	//将相关信息写入数据库
+	err = mysql.CreatVideo(id, title, videoName+mw.MinioLinkPrefix, photo+mw.MinioLinkPrefix)
+	if err != nil {
+		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+			StatusCode: follower_gorm.Code_DBErr,
+			StatusMsg:  err.Error(),
+		})
+	}
+
+	resp := new(publish_gorm.PublishActionResponse)
+	resp.StatusCode = 0
+	resp.StatusMsg = "上传视频成功"
 	c.JSON(consts.StatusOK, resp)
 }

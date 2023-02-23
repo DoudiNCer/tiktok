@@ -153,7 +153,7 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 	} else {
-		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_ParamInvalid, StatusMsg: err.Error()})
+		c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_ParamInvalid, StatusMsg: "无效参数"})
 		return
 	}
 
