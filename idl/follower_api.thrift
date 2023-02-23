@@ -14,14 +14,6 @@ struct User {
     i64 follow_count // 关注总数
     i64 follower_count // 粉丝总数
     bool is_follow // true-已关注，false-未关注
-}
-
-struct UserFollower {
-    i64 id // 用户id
-    string name // 用户名称
-    i64 follow_count // 关注总数
-    i64 follower_count // 粉丝总数
-    bool is_follow // true-已关注，false-未关注
     string avatar //用户头像
     string background_image //用户个人页顶部大图
     string signature //个人简介
@@ -60,7 +52,7 @@ struct QueryFollowerListRequest {
 struct QueryFollowerListResponse {
     1: Code status_code // 状态码，0-成功，其他值-失败
     2: string status_msg // 返回状态描述
-    3: list<UserFollower> user_list // 用户信息列表
+    3: list<User> user_list // 用户信息列表
 }
 
 service FollowerService {

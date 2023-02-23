@@ -85,27 +85,27 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 	var req follower_gorm.QueryFollowListRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: "非法参数"})
+		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: "非法参数"})
 		return
 	}
 
 	//鉴权
 	_, err = util.CheckToken(req.GetToken())
 	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
+		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
 		return
 	}
 	//从请求获取uid
 	userId := req.GetUserID()
 	parseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
+		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
 		return
 	}
 	//查询关注列表
 	followList, _, err := mysql.QueryFollow(parseInt)
 	if err != nil {
-		c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
 		return
 	}
 
@@ -124,27 +124,41 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 		//查询关注对象的关注总数
 		_, followCount, err := mysql.QueryFollow(uid)
 		if err != nil {
-			c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+			c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
 		//查询关注对象的粉丝总数
 		_, followerCount, err := mysql.QueryFollower(uid)
 		if err != nil {
-			c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+			c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
 		//查询关注对象信息
 		user, err := mysql.QueryUserByUid(uid)
 		if err != nil {
-			c.JSON(200, &follower_gorm.CreateFollowerResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+			c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
+		// 查询用户点赞视频数
+		favoriteCount := mysql.QueryNumOfVideoFavoriteByUser(uid)
+		// 查询用户视频被点赞数
+		totalFavorited, err := mysql.QueryNumOfFavoriteGotByUser(uid)
+		if err != nil {
+			return
+		}
+		workCount := mysql.QueryVideoNumFromUser(uid)
 		//数据装配
 		userSingle.IsFollow = true
 		userSingle.Name = user.Name
 		userSingle.ID = uid
 		userSingle.FollowCount = followCount
 		userSingle.FollowerCount = followerCount
+		userSingle.Avatar = user.PortraitPath
+		userSingle.BackgroundImage = user.BackgroundPicturePath
+		userSingle.Signature = user.Signature
+		userSingle.FavoriteCount = favoriteCount
+		userSingle.TotalFavorited = totalFavorited
+		userSingle.WorkCount = workCount
 		userList = append(userList, &userSingle)
 	}
 	resp.UserList = userList
@@ -166,7 +180,82 @@ func QueryFollowerList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	//鉴权
+	_, err = util.CheckToken(req.GetToken())
+	if err != nil {
+		c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
+		return
+	}
+	//从请求获取uid
+	userId := req.GetUserID()
+	parseInt, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
+		return
+	}
+	//查询粉丝列表
+	followList, _, err := mysql.QueryFollower(parseInt)
+	if err != nil {
+		c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+		return
+	}
+
 	resp := new(follower_gorm.QueryFollowerListResponse)
 
-	c.JSON(consts.StatusOK, resp)
+	var userList = resp.GetUserList()
+
+	for _, value := range followList {
+		//创建载体对象
+		var userSingle follower_gorm.User
+		//查询出的关注对象
+		follower := value
+		//获取关注对象uid
+		uid := follower.ToUserUid
+
+		//查询关注对象的关注总数
+		_, followCount, err := mysql.QueryFollow(uid)
+		if err != nil {
+			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+		//查询关注对象的粉丝总数
+		_, followerCount, err := mysql.QueryFollower(uid)
+		if err != nil {
+			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+		//查询关注对象信息
+		user, err := mysql.QueryUserByUid(uid)
+		if err != nil {
+			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+			return
+		}
+		// 查询用户点赞视频数
+		favoriteCount := mysql.QueryNumOfVideoFavoriteByUser(uid)
+		// 查询用户视频被点赞数
+		totalFavorited, err := mysql.QueryNumOfFavoriteGotByUser(uid)
+		if err != nil {
+			return
+		}
+		workCount := mysql.QueryVideoNumFromUser(uid)
+		//数据装配
+		userSingle.IsFollow = true
+		userSingle.Name = user.Name
+		userSingle.ID = uid
+		userSingle.FollowCount = followCount
+		userSingle.FollowerCount = followerCount
+		userSingle.Avatar = user.PortraitPath
+		userSingle.BackgroundImage = user.BackgroundPicturePath
+		userSingle.Signature = user.Signature
+		userSingle.FavoriteCount = favoriteCount
+		userSingle.TotalFavorited = totalFavorited
+		userSingle.WorkCount = workCount
+		userList = append(userList, &userSingle)
+	}
+	resp.UserList = userList
+
+	resp.StatusCode = follower_gorm.Code_Success
+	resp.StatusMsg = "请求正常"
+
+	c.JSON(200, resp)
 }

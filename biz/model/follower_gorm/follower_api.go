@@ -68,11 +68,17 @@ func (p *Code) Value() (driver.Value, error) {
 }
 
 type User struct {
-	ID            int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
-	Name          string `thrift:"name,2" form:"name" json:"name" query:"name"`
-	FollowCount   int64  `thrift:"follow_count,3" form:"follow_count" json:"follow_count" query:"follow_count"`
-	FollowerCount int64  `thrift:"follower_count,4" form:"follower_count" json:"follower_count" query:"follower_count"`
-	IsFollow      bool   `thrift:"is_follow,5" form:"is_follow" json:"is_follow" query:"is_follow"`
+	ID              int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
+	Name            string `thrift:"name,2" form:"name" json:"name" query:"name"`
+	FollowCount     int64  `thrift:"follow_count,3" form:"follow_count" json:"follow_count" query:"follow_count"`
+	FollowerCount   int64  `thrift:"follower_count,4" form:"follower_count" json:"follower_count" query:"follower_count"`
+	IsFollow        bool   `thrift:"is_follow,5" form:"is_follow" json:"is_follow" query:"is_follow"`
+	Avatar          string `thrift:"avatar,6" form:"avatar" json:"avatar" query:"avatar"`
+	BackgroundImage string `thrift:"background_image,7" form:"background_image" json:"background_image" query:"background_image"`
+	Signature       string `thrift:"signature,8" form:"signature" json:"signature" query:"signature"`
+	TotalFavorited  int64  `thrift:"total_favorited,9" form:"total_favorited" json:"total_favorited" query:"total_favorited"`
+	WorkCount       int64  `thrift:"work_count,10" form:"work_count" json:"work_count" query:"work_count"`
+	FavoriteCount   int64  `thrift:"favorite_count,11" form:"favorite_count" json:"favorite_count" query:"favorite_count"`
 }
 
 func NewUser() *User {
@@ -99,358 +105,31 @@ func (p *User) GetIsFollow() (v bool) {
 	return p.IsFollow
 }
 
-var fieldIDToName_User = map[int16]string{
-	1: "id",
-	2: "name",
-	3: "follow_count",
-	4: "follower_count",
-	5: "is_follow",
-}
-
-func (p *User) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 2:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 4:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 5:
-			if fieldTypeId == thrift.BOOL {
-				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else {
-				if err = iprot.Skip(fieldTypeId); err != nil {
-					goto SkipFieldError
-				}
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_User[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *User) ReadField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.ID = v
-	}
-	return nil
-}
-
-func (p *User) ReadField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.Name = v
-	}
-	return nil
-}
-
-func (p *User) ReadField3(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.FollowCount = v
-	}
-	return nil
-}
-
-func (p *User) ReadField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.FollowerCount = v
-	}
-	return nil
-}
-
-func (p *User) ReadField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadBool(); err != nil {
-		return err
-	} else {
-		p.IsFollow = v
-	}
-	return nil
-}
-
-func (p *User) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("User"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
-
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *User) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.ID); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *User) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("name", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Name); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *User) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("follow_count", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.FollowCount); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *User) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("follower_count", thrift.I64, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.FollowerCount); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *User) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("is_follow", thrift.BOOL, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteBool(p.IsFollow); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
-}
-
-func (p *User) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("User(%+v)", *p)
-}
-
-type UserFollower struct {
-	ID              int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
-	Name            string `thrift:"name,2" form:"name" json:"name" query:"name"`
-	FollowCount     int64  `thrift:"follow_count,3" form:"follow_count" json:"follow_count" query:"follow_count"`
-	FollowerCount   int64  `thrift:"follower_count,4" form:"follower_count" json:"follower_count" query:"follower_count"`
-	IsFollow        bool   `thrift:"is_follow,5" form:"is_follow" json:"is_follow" query:"is_follow"`
-	Avatar          string `thrift:"avatar,6" form:"avatar" json:"avatar" query:"avatar"`
-	BackgroundImage string `thrift:"background_image,7" form:"background_image" json:"background_image" query:"background_image"`
-	Signature       string `thrift:"signature,8" form:"signature" json:"signature" query:"signature"`
-	TotalFavorited  int64  `thrift:"total_favorited,9" form:"total_favorited" json:"total_favorited" query:"total_favorited"`
-	WorkCount       int64  `thrift:"work_count,10" form:"work_count" json:"work_count" query:"work_count"`
-	FavoriteCount   int64  `thrift:"favorite_count,11" form:"favorite_count" json:"favorite_count" query:"favorite_count"`
-}
-
-func NewUserFollower() *UserFollower {
-	return &UserFollower{}
-}
-
-func (p *UserFollower) GetID() (v int64) {
-	return p.ID
-}
-
-func (p *UserFollower) GetName() (v string) {
-	return p.Name
-}
-
-func (p *UserFollower) GetFollowCount() (v int64) {
-	return p.FollowCount
-}
-
-func (p *UserFollower) GetFollowerCount() (v int64) {
-	return p.FollowerCount
-}
-
-func (p *UserFollower) GetIsFollow() (v bool) {
-	return p.IsFollow
-}
-
-func (p *UserFollower) GetAvatar() (v string) {
+func (p *User) GetAvatar() (v string) {
 	return p.Avatar
 }
 
-func (p *UserFollower) GetBackgroundImage() (v string) {
+func (p *User) GetBackgroundImage() (v string) {
 	return p.BackgroundImage
 }
 
-func (p *UserFollower) GetSignature() (v string) {
+func (p *User) GetSignature() (v string) {
 	return p.Signature
 }
 
-func (p *UserFollower) GetTotalFavorited() (v int64) {
+func (p *User) GetTotalFavorited() (v int64) {
 	return p.TotalFavorited
 }
 
-func (p *UserFollower) GetWorkCount() (v int64) {
+func (p *User) GetWorkCount() (v int64) {
 	return p.WorkCount
 }
 
-func (p *UserFollower) GetFavoriteCount() (v int64) {
+func (p *User) GetFavoriteCount() (v int64) {
 	return p.FavoriteCount
 }
 
-var fieldIDToName_UserFollower = map[int16]string{
+var fieldIDToName_User = map[int16]string{
 	1:  "id",
 	2:  "name",
 	3:  "follow_count",
@@ -464,7 +143,7 @@ var fieldIDToName_UserFollower = map[int16]string{
 	11: "favorite_count",
 }
 
-func (p *UserFollower) Read(iprot thrift.TProtocol) (err error) {
+func (p *User) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -613,7 +292,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UserFollower[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_User[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -623,7 +302,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *UserFollower) ReadField1(iprot thrift.TProtocol) error {
+func (p *User) ReadField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -632,7 +311,7 @@ func (p *UserFollower) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField2(iprot thrift.TProtocol) error {
+func (p *User) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -641,7 +320,7 @@ func (p *UserFollower) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField3(iprot thrift.TProtocol) error {
+func (p *User) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -650,7 +329,7 @@ func (p *UserFollower) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField4(iprot thrift.TProtocol) error {
+func (p *User) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -659,7 +338,7 @@ func (p *UserFollower) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField5(iprot thrift.TProtocol) error {
+func (p *User) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
@@ -668,7 +347,7 @@ func (p *UserFollower) ReadField5(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField6(iprot thrift.TProtocol) error {
+func (p *User) ReadField6(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -677,7 +356,7 @@ func (p *UserFollower) ReadField6(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField7(iprot thrift.TProtocol) error {
+func (p *User) ReadField7(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -686,7 +365,7 @@ func (p *UserFollower) ReadField7(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField8(iprot thrift.TProtocol) error {
+func (p *User) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
@@ -695,7 +374,7 @@ func (p *UserFollower) ReadField8(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField9(iprot thrift.TProtocol) error {
+func (p *User) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -704,7 +383,7 @@ func (p *UserFollower) ReadField9(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField10(iprot thrift.TProtocol) error {
+func (p *User) ReadField10(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -713,7 +392,7 @@ func (p *UserFollower) ReadField10(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) ReadField11(iprot thrift.TProtocol) error {
+func (p *User) ReadField11(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
@@ -722,9 +401,9 @@ func (p *UserFollower) ReadField11(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *UserFollower) Write(oprot thrift.TProtocol) (err error) {
+func (p *User) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("UserFollower"); err != nil {
+	if err = oprot.WriteStructBegin("User"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -791,7 +470,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *UserFollower) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -808,7 +487,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("name", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -825,7 +504,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("follow_count", thrift.I64, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -842,7 +521,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField4(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("follower_count", thrift.I64, 4); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -859,7 +538,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField5(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("is_follow", thrift.BOOL, 5); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -876,7 +555,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField6(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField6(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("avatar", thrift.STRING, 6); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -893,7 +572,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField7(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField7(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("background_image", thrift.STRING, 7); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -910,7 +589,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField8(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField8(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("signature", thrift.STRING, 8); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -927,7 +606,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField9(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField9(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("total_favorited", thrift.I64, 9); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -944,7 +623,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField10(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField10(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("work_count", thrift.I64, 10); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -961,7 +640,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
 }
 
-func (p *UserFollower) writeField11(oprot thrift.TProtocol) (err error) {
+func (p *User) writeField11(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("favorite_count", thrift.I64, 11); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -978,11 +657,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
 }
 
-func (p *UserFollower) String() string {
+func (p *User) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("UserFollower(%+v)", *p)
+	return fmt.Sprintf("User(%+v)", *p)
 }
 
 type CreateFollowerRequest struct {
@@ -2012,9 +1691,9 @@ func (p *QueryFollowerListRequest) String() string {
 }
 
 type QueryFollowerListResponse struct {
-	StatusCode Code            `thrift:"status_code,1" form:"status_code" json:"status_code" query:"status_code"`
-	StatusMsg  string          `thrift:"status_msg,2" form:"status_msg" json:"status_msg" query:"status_msg"`
-	UserList   []*UserFollower `thrift:"user_list,3" form:"user_list" json:"user_list" query:"user_list"`
+	StatusCode Code    `thrift:"status_code,1" form:"status_code" json:"status_code" query:"status_code"`
+	StatusMsg  string  `thrift:"status_msg,2" form:"status_msg" json:"status_msg" query:"status_msg"`
+	UserList   []*User `thrift:"user_list,3" form:"user_list" json:"user_list" query:"user_list"`
 }
 
 func NewQueryFollowerListResponse() *QueryFollowerListResponse {
@@ -2029,7 +1708,7 @@ func (p *QueryFollowerListResponse) GetStatusMsg() (v string) {
 	return p.StatusMsg
 }
 
-func (p *QueryFollowerListResponse) GetUserList() (v []*UserFollower) {
+func (p *QueryFollowerListResponse) GetUserList() (v []*User) {
 	return p.UserList
 }
 
@@ -2141,9 +1820,9 @@ func (p *QueryFollowerListResponse) ReadField3(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	p.UserList = make([]*UserFollower, 0, size)
+	p.UserList = make([]*User, 0, size)
 	for i := 0; i < size; i++ {
-		_elem := NewUserFollower()
+		_elem := NewUser()
 		if err := _elem.Read(iprot); err != nil {
 			return err
 		}
