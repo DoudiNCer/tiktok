@@ -25,7 +25,7 @@ struct FavoriteActionResponse {
 }
 
 struct FavoriteListRequest {
-    1: i64 user_id  (api.query="user_id", api.vd="regex('^[0-9]*$')")
+    1: i64 user_id  (api.query="user_id")
     2: string token (api.query="token")
 }
 

@@ -889,7 +889,7 @@ func (p *FavoriteActionResponse) String() string {
 }
 
 type FavoriteListRequest struct {
-	UserID int64  `thrift:"user_id,1" json:"user_id" query:"user_id" vd:"regex('^[0-9]*$')"`
+	UserID int64  `thrift:"user_id,1" json:"user_id" query:"user_id"`
 	Token  string `thrift:"token,2" json:"token" query:"token"`
 }
 

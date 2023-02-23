@@ -25,6 +25,6 @@ struct publishActionResponse {
 }
 
 service publishService {
-    publishListResponse publishList(publishListRequest req) (api.get="/douyin/publish/list/")
-    publishActionResponse publishAction(publishActionRequest req)   (api.post="/douyin/publish/action/")
+    publishListResponse publishList(1: publishListRequest req) (api.get="/douyin/publish/list/")
+    publishActionResponse publishAction(1: publishActionRequest req)   (api.post="/douyin/publish/action/")
 }

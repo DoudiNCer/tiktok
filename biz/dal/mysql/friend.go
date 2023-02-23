@@ -14,7 +14,7 @@ func QueryFriend(uid int64) (res []*model.User, err error) {
 	if err != nil {
 		return nil, err
 	}
-	db.Scan(res)
+	db.Scan(&res)
 	return
 }
 
