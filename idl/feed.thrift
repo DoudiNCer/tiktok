@@ -3,8 +3,8 @@ namespace go feed_gorm
 include "favorite_api.thrift"
 
 struct FeedRequest {
-    1: i64 last_time (api.body="last_time")
-    2: string token (api.body="token")
+    1: i64 last_time (api.query="last_time")
+    2: string token (api.query="token")
 }
 
 struct FeedResponse {

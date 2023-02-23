@@ -14,9 +14,9 @@ struct publishListResponse {
 }
 
 struct publishActionRequest {
-    1: string token (api.body="token")
-    2: binary data    (api.body="data")
-    3: string title (api.body="title")
+    1: string token (api.query="token")
+    2: binary data    (api.query="data")
+    3: string title (api.query="title")
 }
 
 struct publishActionResponse {

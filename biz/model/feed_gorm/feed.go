@@ -10,8 +10,8 @@ import (
 )
 
 type FeedRequest struct {
-	LastTime int64  `thrift:"last_time,1" form:"last_time" json:"last_time"`
-	Token    string `thrift:"token,2" form:"token" json:"token"`
+	LastTime int64  `thrift:"last_time,1" json:"last_time" query:"last_time"`
+	Token    string `thrift:"token,2" json:"token" query:"token"`
 }
 
 func NewFeedRequest() *FeedRequest {
