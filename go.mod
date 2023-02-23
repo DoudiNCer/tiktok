@@ -1,16 +1,16 @@
 module github.com/DodiNCer/tiktok
 
-go 1.20
+go 1.19
 
 require (
 	github.com/apache/thrift v0.13.0
 	github.com/cloudwego/hertz v0.5.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
-	github.com/gomodule/redigo v1.8.9
 	golang.org/x/crypto v0.6.0
 	gorm.io/driver/mysql v1.4.6
 	gorm.io/gorm v1.24.5
+	github.com/cloudwego/kitex v0.4.4
 )
 
 require (
