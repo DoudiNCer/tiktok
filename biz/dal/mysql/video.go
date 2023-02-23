@@ -38,3 +38,14 @@ func CreatVideo(userId int64, title string, path string, coverPath string) error
 	}).Error
 	return err
 }
+
+func QueryVideoByTime(time int64) ([]*model.Video, error) {
+	var videoRes []*model.Video
+	var err error
+	if time != 0 {
+		err = DB.Where("create_time <= ", time).Order("create_time desc").Limit(30).Find(&videoRes).Error
+	} else {
+		err = DB.Order("create_time desc").Limit(30).Find(&videoRes).Error
+	}
+	return videoRes, err
+}
