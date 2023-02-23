@@ -4,7 +4,9 @@ import (
 	"errors"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/user_gorm"
+	"github.com/DodiNCer/tiktok/biz/mw"
 	"github.com/DodiNCer/tiktok/biz/util"
+	"strconv"
 	"time"
 )
 
@@ -35,7 +37,9 @@ func Register(username, password string) (int64, error) {
 	tempUser.Name = username
 	tempUser.Password = util.ScryptPassword(password)
 	tempUser.CreateTime = time.Now()
-
+	tempUser.PortraitPath = mw.MinioLinkPrefix + "head.jpg"
+	tempUser.BackgroundPicturePath = mw.MinioLinkPrefix + "background.jpg"
+	tempUser.Signature = "Welcome to tiktok"
 	tx := DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -75,6 +79,8 @@ func Login(username, password string) (int64, error) {
 // UserInfo 获取用户信息
 func UserInfo(userId, Tid int64) (user_gorm.UserInfoResponse, error) {
 	var user model.User
+	var video model.Video
+	var favorite model.Favorite
 	var follower model.Follower
 	var UserResp user_gorm.UserResp
 	var userInfoResponse user_gorm.UserInfoResponse
@@ -87,20 +93,23 @@ func UserInfo(userId, Tid int64) (user_gorm.UserInfoResponse, error) {
 	}
 	UserResp.Id = userId
 	UserResp.Name = user.Name
+	UserResp.Avatar = user.PortraitPath
+	UserResp.BackgroundImage = user.BackgroundPicturePath
+	UserResp.Signature = user.Signature
 
-	var FollowCount int64
-	if err := tx.Where("user_uid=?", userId).Find(&follower).Count(&FollowCount).Error; err != nil {
+	var FollowerCount int64
+	if err := tx.Where("user_uid=?", userId).Find(&follower).Count(&FollowerCount).Error; err != nil {
 		tx.Rollback()
 		return userInfoResponse, errors.New("粉丝总数统计异常")
 	}
-	UserResp.FollowCount = FollowCount
+	UserResp.FollowerCount = FollowerCount
 
-	var FollowerCount int64
-	if err := tx.Where("to_user_uid=?", userId).Find(&follower).Count(&FollowerCount).Error; err != nil {
+	var FollowCount int64
+	if err := tx.Where("to_user_uid=?", userId).Find(&follower).Count(&FollowCount).Error; err != nil {
 		tx.Rollback()
 		return userInfoResponse, errors.New("关注总数统计异常")
 	}
-	UserResp.FollowerCount = FollowerCount
+	UserResp.FollowCount = FollowCount
 
 	tx.Where("to_user_uid = ?", Tid).First(&follower)
 	if follower.Id <= 0 {
@@ -108,6 +117,29 @@ func UserInfo(userId, Tid int64) (user_gorm.UserInfoResponse, error) {
 	} else {
 		UserResp.IsFollow = true
 	}
+	//获赞数量
+	totalFavorited, err := QueryNumOfFavoriteGotByUser(userId)
+	if err != nil {
+		return userInfoResponse, errors.New("获赞总数统计异常")
+	}
+	UserResp.TotalFavorited = strconv.FormatInt(totalFavorited, 10)
+
+	//统计作品数
+	var WorkCount int64
+	if err := tx.Where("creator_id=?", userId).Find(&video).Count(&WorkCount).Error; err != nil {
+		tx.Rollback()
+		return userInfoResponse, errors.New("作品数统计异常")
+	}
+	UserResp.WorkCount = WorkCount
+
+	//统计喜欢数
+	var FavoriteCount int64
+	if err := tx.Where("creator_id=?", userId).Find(&favorite).Count(&FavoriteCount).Error; err != nil {
+		tx.Rollback()
+		return userInfoResponse, errors.New("喜欢数统计异常")
+	}
+	UserResp.FavoriteCount = FavoriteCount
+
 	userInfoResponse.UserResp = UserResp
 
 	return userInfoResponse, tx.Commit().Error
