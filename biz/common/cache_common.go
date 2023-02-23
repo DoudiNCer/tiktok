@@ -19,4 +19,7 @@ var KeyVideoCreator = "key_video_creator"
 func DeleteUserReferTo(uid string) {
 	CacheManager.Delete(uid + KeyAddUser)
 	CacheManager.Delete(uid + KeyAddFriend)
+	CacheManager.Delete(uid + KeyUserFavorite)
+	CacheManager.Delete(uid + KeyFollowIs)
+	CacheManager.Delete(uid + KeyFavoriteIs)
 }
