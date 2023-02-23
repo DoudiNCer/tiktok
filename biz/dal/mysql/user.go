@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/user_gorm"
+	"github.com/DodiNCer/tiktok/biz/mw"
 	"github.com/DodiNCer/tiktok/biz/util"
 	"strconv"
 	"time"
@@ -36,7 +37,9 @@ func Register(username, password string) (int64, error) {
 	tempUser.Name = username
 	tempUser.Password = util.ScryptPassword(password)
 	tempUser.CreateTime = time.Now()
-
+	tempUser.PortraitPath = mw.MinioLinkPrefix + "head.jpg"
+	tempUser.BackgroundPicturePath = mw.MinioLinkPrefix + "background.jpg"
+	tempUser.Signature = "Welcome to tiktok"
 	tx := DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
