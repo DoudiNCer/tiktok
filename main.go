@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	h := server.Default()
+	h := server.Default(server.WithMaxRequestBodySize(1073741824), server.WithMaxKeepBodySize(1073741824))
 	dal.Init()
 	mw.InitRPC()
 	mw.InitMinio()
