@@ -50,3 +50,18 @@ func _queryfollowlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _followerMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _list0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _queryfollowerlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
