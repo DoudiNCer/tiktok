@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	h := server.Default(server.WithHostPorts("0.0.0.0:8086"))
+	h := server.Default()
 	dal.Init()
 	mw.InitRPC()
 	mw.InitMinio()

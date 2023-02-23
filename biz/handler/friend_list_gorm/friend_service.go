@@ -4,11 +4,13 @@ package friend_list_gorm
 
 import (
 	"context"
+	"github.com/DodiNCer/tiktok/biz/common"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	friend_list_gorm "github.com/DodiNCer/tiktok/biz/model/friend_list_gorm"
 	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/patrickmn/go-cache"
 	"strconv"
 )
 
@@ -52,21 +54,35 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 	for _, user := range friends {
 		var friendSingle friend_list_gorm.FriendUser
 		// 取出好友信息
-		frienduser := user
-		id := frienduser.Id
-		name := frienduser.Name
-		backgroundPicturePath := frienduser.BackgroundPicturePath
-		portraitPath := frienduser.PortraitPath
-		signature := frienduser.Signature
+		friendUser := user
+		id := friendUser.Id
+		//部分走缓存，修改缓存中的最新消息
+		if v, found := common.CacheManager.Get(strconv.FormatInt(id, 10) + common.KeyAddFriend); found == true {
+			friendSingle = v.(friend_list_gorm.FriendUser)
+			// 查询最新消息
+			message, msgType, err := mysql.QueryLastMessage(uid, id)
+			if err != nil {
+				c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_DBErr, StatusMsg: err.Error()})
+				return
+			}
+			friendSingle.Message = message.Text
+			friendSingle.MsgType = msgType
+			continue
+		}
+		//未走缓存
+		name := friendUser.Name
+		backgroundPicturePath := friendUser.BackgroundPicturePath
+		portraitPath := friendUser.PortraitPath
+		signature := friendUser.Signature
 
 		// 查询粉丝数
-		followerNum, err := mysql.QueryFollowerNum(id)
+		_, followerNum, err := mysql.QueryFollower(id)
 		if err != nil {
 			c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
 		// 查询关注数
-		followNum, err := mysql.QueryFollowNum(id)
+		_, followNum, err := mysql.QueryFollow(id)
 		if err != nil {
 			c.JSON(200, &friend_list_gorm.GetFriendListResponse{StatusCode: friend_list_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
@@ -101,6 +117,8 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 		friendSingle.WorkCount = videoNum
 		friendSingle.FavoriteCount = favoriteCount
 		friendSingle.TotalFavorited = favoriteGotByUser
+		//写入缓存
+		common.CacheManager.Set(strconv.FormatInt(id, 10), friendSingle, cache.DefaultExpiration)
 		userList = append(userList, &friendSingle)
 	}
 
