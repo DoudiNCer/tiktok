@@ -12,7 +12,7 @@ import (
 func main() {
 	h := server.Default(server.WithHostPorts("0.0.0.0:8086"))
 	dal.Init()
-	mw.InitRPC()
+	//mw.InitRPC()
 	mw.InitMinio()
 	router.Register(h)
 	h.Spin()
