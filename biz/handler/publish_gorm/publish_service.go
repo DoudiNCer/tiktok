@@ -154,6 +154,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 			StatusCode: follower_gorm.Code_RTErr,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 
 	key, err := util.CheckToken(token)
@@ -166,6 +167,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 			StatusCode: follower_gorm.Code_DBErr,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 
 	//上传视频
@@ -177,9 +179,10 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 			StatusCode: follower_gorm.Code_DBErr,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 
-	workspace, err := mw.RPCClient.InitWorkspace(ctx, &kitex_ffmpeg.InitWorkspaceRequest{Whoami: "汤香香"})
+	workspace, err := mw.RPCClient.InitWorkspace(ctx, &kitex_ffmpeg.InitWorkspaceRequest{Whoami: "汤香b"})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -188,11 +191,15 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	file := kitex_ffmpeg.File{FileName: "video", Content: data}
-	files, err := mw.RPCClient.UploadFiles(ctx, &kitex_ffmpeg.UploadFilesRequest{Token: workspace.Token, Files: []*kitex_ffmpeg.File{&file}})
+	files, err := mw.RPCClient.UploadFiles(context.Background(), &kitex_ffmpeg.UploadFilesRequest{Token: workspace.Token, Files: []*kitex_ffmpeg.File{&file}})
 	if err != nil {
+		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+			StatusCode: follower_gorm.Code_DBErr,
+			StatusMsg:  err.Error(),
+		})
 		return
 	}
-	execRes, err := mw.RPCClient.ExecFfmpeg(ctx, &kitex_ffmpeg.ExecRequest{Token: workspace.Token, Args_: []string{"-i", files.Files[0].FileID, "-ss", "00:00:02", "-frames:v", "1", "out.jpg"}})
+	execRes, err := mw.RPCClient.ExecFfmpeg(context.Background(), &kitex_ffmpeg.ExecRequest{Token: workspace.Token, Args_: []string{"-i", files.Files[0].FileID, "-ss", "00:00:02", "-frames:v", "1", "out.jpg"}})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -200,7 +207,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	downloadFiles, err := mw.RPCClient.DownloadFiles(ctx, &kitex_ffmpeg.DownloadFilesRequest{Token: workspace.Token, FileIDs: []string{"a.out"}})
+	downloadFiles, err := mw.RPCClient.DownloadFiles(context.Background(), &kitex_ffmpeg.DownloadFilesRequest{Token: workspace.Token, FileIDs: []string{"a.out"}})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -210,7 +217,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 	}
 	//上传视频封面
 	coverReader := bytes.NewReader(downloadFiles.Files[0].Content)
-	_, err = mw.RPCClient.DropWorkspace(ctx, &kitex_ffmpeg.DropWorkspaceRequest{Token: workspace.Token, Whoami: "汤香香"})
+	_, err = mw.RPCClient.DropWorkspace(context.Background(), &kitex_ffmpeg.DropWorkspaceRequest{Token: workspace.Token, Whoami: "汤香香"})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -224,15 +231,17 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 			StatusCode: follower_gorm.Code_DBErr,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 
 	//将相关信息写入数据库
-	err = mysql.CreatVideo(id, title, videoName+mw.MinioLinkPrefix, photo+mw.MinioLinkPrefix)
+	err = mysql.CreatVideo(id, title, mw.MinioLinkPrefix+videoName, mw.MinioLinkPrefix+photo)
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 	//发布视频更新用户相关缓存
 	common.DeleteUserReferTo(strconv.FormatInt(user.Id, 10))
