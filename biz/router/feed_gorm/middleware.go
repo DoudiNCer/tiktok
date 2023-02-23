@@ -25,3 +25,8 @@ func _queryfeedlistMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _feed_gormMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
