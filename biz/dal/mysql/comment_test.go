@@ -35,7 +35,7 @@ func TestDeleteComment(t *testing.T) {
 func TestQueryCommentsByVideoId(t *testing.T) {
 	fmt.Println("TestQueryCommentsByVideoId")
 	Init()
-	comments, err := QueryCommentsByVideoId(2)
+	comments, err := QueryCommentsByVideoId(223)
 	if err != nil {
 		return
 	}
