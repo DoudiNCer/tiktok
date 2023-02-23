@@ -4,12 +4,14 @@ package follower_gorm
 
 import (
 	"context"
+	"github.com/DodiNCer/tiktok/biz/common"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
 	follower_gorm "github.com/DodiNCer/tiktok/biz/model/follower_gorm"
 	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/patrickmn/go-cache"
 	"strconv"
 	"time"
 )
@@ -54,9 +56,10 @@ func CreateFollower(ctx context.Context, c *app.RequestContext) {
 		if actionType == 2 {
 			resp.StatusMsg = "取消关注成功"
 		}
+		//信息更新，删除旧缓存
+		common.CacheManager.Delete(strconv.FormatInt(userId, 10) + common.KeyAddUser)
 
-	}
-	if total == 0 {
+	} else {
 		//在follower表中创建记录
 		if err = mysql.CreateFollower([]*model.Follower{
 			{
@@ -88,6 +91,7 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_ParamInvalid, StatusMsg: "非法参数"})
 		return
 	}
+	resp := new(follower_gorm.QueryFollowListResponse)
 
 	//鉴权
 	_, err = util.CheckToken(req.GetToken())
@@ -95,21 +99,22 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_TokenErr, StatusMsg: "token验证失败"})
 		return
 	}
+
 	//从请求获取uid
 	userId := req.GetUserID()
+
 	parseInt, err := strconv.ParseInt(userId, 10, 64)
 	if err != nil {
 		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
 		return
 	}
+
 	//查询关注列表
 	followList, _, err := mysql.QueryFollow(parseInt)
 	if err != nil {
 		c.JSON(200, &follower_gorm.QueryFollowListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
 		return
 	}
-
-	resp := new(follower_gorm.QueryFollowListResponse)
 
 	var userList = resp.GetUserList()
 
@@ -120,7 +125,13 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 		follower := value
 		//获取关注对象uid
 		uid := follower.ToUserUid
-
+		//走缓存拿user信息
+		if v, found := common.CacheManager.Get(strconv.FormatInt(uid, 10) + common.KeyAddUser); found == true {
+			userSingle = v.(follower_gorm.User)
+			userList = append(userList, &userSingle)
+			continue
+		}
+		//未走缓存
 		//查询关注对象的关注总数
 		_, followCount, err := mysql.QueryFollow(uid)
 		if err != nil {
@@ -159,6 +170,8 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 		userSingle.FavoriteCount = favoriteCount
 		userSingle.TotalFavorited = totalFavorited
 		userSingle.WorkCount = workCount
+		//写入缓存
+		common.CacheManager.Set(strconv.FormatInt(uid, 10)+common.KeyAddUser, userSingle, cache.DefaultExpiration)
 		userList = append(userList, &userSingle)
 	}
 	resp.UserList = userList
@@ -174,6 +187,7 @@ func QueryFollowList(ctx context.Context, c *app.RequestContext) {
 func QueryFollowerList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req follower_gorm.QueryFollowerListRequest
+	resp := new(follower_gorm.QueryFollowerListResponse)
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
@@ -188,74 +202,91 @@ func QueryFollowerList(ctx context.Context, c *app.RequestContext) {
 	}
 	//从请求获取uid
 	userId := req.GetUserID()
-	parseInt, err := strconv.ParseInt(userId, 10, 64)
-	if err != nil {
-		c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
-		return
-	}
-	//查询粉丝列表
-	followList, _, err := mysql.QueryFollower(parseInt)
-	if err != nil {
-		c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
-		return
-	}
 
-	resp := new(follower_gorm.QueryFollowerListResponse)
+	//从缓存中获取userList
+	if v, found := common.CacheManager.Get(userId); found == true {
+		resp.UserList = v.([]*follower_gorm.User)
+		resp.StatusCode = follower_gorm.Code_Success
+		resp.StatusMsg = "请求正常(走缓存)"
+		c.JSON(200, resp)
+	} else {
+		//未走缓存
 
-	var userList = resp.GetUserList()
-
-	for _, value := range followList {
-		//创建载体对象
-		var userSingle follower_gorm.User
-		//查询出的关注对象
-		follower := value
-		//获取关注对象uid
-		uid := follower.ToUserUid
-
-		//查询关注对象的关注总数
-		_, followCount, err := mysql.QueryFollow(uid)
+		parseInt, err := strconv.ParseInt(userId, 10, 64)
+		if err != nil {
+			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_RTErr, StatusMsg: err.Error()})
+			return
+		}
+		//查询粉丝列表
+		followList, _, err := mysql.QueryFollower(parseInt)
 		if err != nil {
 			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
 			return
 		}
-		//查询关注对象的粉丝总数
-		_, followerCount, err := mysql.QueryFollower(uid)
-		if err != nil {
-			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
-			return
+
+		var userList = resp.GetUserList()
+
+		for _, value := range followList {
+			//创建载体对象
+			var userSingle follower_gorm.User
+			//查询出的关注对象
+			follower := value
+			//获取关注对象uid
+			uid := follower.ToUserUid
+			//走缓存拿user信息
+			if v, found := common.CacheManager.Get(strconv.FormatInt(uid, 10) + common.KeyAddUser); found == true {
+				userSingle = v.(follower_gorm.User)
+				userList = append(userList, &userSingle)
+				continue
+			}
+			//未走缓存
+			//查询关注对象的关注总数
+			_, followCount, err := mysql.QueryFollow(uid)
+			if err != nil {
+				c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+				return
+			}
+			//查询关注对象的粉丝总数
+			_, followerCount, err := mysql.QueryFollower(uid)
+			if err != nil {
+				c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+				return
+			}
+			//查询关注对象信息
+			user, err := mysql.QueryUserByUid(uid)
+			if err != nil {
+				c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
+				return
+			}
+			// 查询用户点赞视频数
+			favoriteCount := mysql.QueryNumOfVideoFavoriteByUser(uid)
+			// 查询用户视频被点赞数
+			totalFavorited, err := mysql.QueryNumOfFavoriteGotByUser(uid)
+			if err != nil {
+				return
+			}
+			workCount := mysql.QueryVideoNumFromUser(uid)
+			//数据装配
+			userSingle.IsFollow = true
+			userSingle.Name = user.Name
+			userSingle.ID = uid
+			userSingle.FollowCount = followCount
+			userSingle.FollowerCount = followerCount
+			userSingle.Avatar = user.PortraitPath
+			userSingle.BackgroundImage = user.BackgroundPicturePath
+			userSingle.Signature = user.Signature
+			userSingle.FavoriteCount = favoriteCount
+			userSingle.TotalFavorited = totalFavorited
+			userSingle.WorkCount = workCount
+			//写入缓存
+			common.CacheManager.Set(strconv.FormatInt(uid, 10)+common.KeyAddUser, userSingle, cache.DefaultExpiration)
+			userList = append(userList, &userSingle)
 		}
-		//查询关注对象信息
-		user, err := mysql.QueryUserByUid(uid)
-		if err != nil {
-			c.JSON(200, &follower_gorm.QueryFollowerListResponse{StatusCode: follower_gorm.Code_DBErr, StatusMsg: err.Error()})
-			return
-		}
-		// 查询用户点赞视频数
-		favoriteCount := mysql.QueryNumOfVideoFavoriteByUser(uid)
-		// 查询用户视频被点赞数
-		totalFavorited, err := mysql.QueryNumOfFavoriteGotByUser(uid)
-		if err != nil {
-			return
-		}
-		workCount := mysql.QueryVideoNumFromUser(uid)
-		//数据装配
-		userSingle.IsFollow = true
-		userSingle.Name = user.Name
-		userSingle.ID = uid
-		userSingle.FollowCount = followCount
-		userSingle.FollowerCount = followerCount
-		userSingle.Avatar = user.PortraitPath
-		userSingle.BackgroundImage = user.BackgroundPicturePath
-		userSingle.Signature = user.Signature
-		userSingle.FavoriteCount = favoriteCount
-		userSingle.TotalFavorited = totalFavorited
-		userSingle.WorkCount = workCount
-		userList = append(userList, &userSingle)
+		resp.UserList = userList
+
+		resp.StatusCode = follower_gorm.Code_Success
+		resp.StatusMsg = "请求正常"
+
+		c.JSON(200, resp)
 	}
-	resp.UserList = userList
-
-	resp.StatusCode = follower_gorm.Code_Success
-	resp.StatusMsg = "请求正常"
-
-	c.JSON(200, resp)
 }
