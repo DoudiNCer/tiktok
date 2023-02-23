@@ -13,7 +13,7 @@ const (
 	secretAccessKey string = "tiktokpass"
 	useSSL          bool   = false
 	BucketName      string = "tiktok"
-	MinioLinkPrefix string = "haorui.xyz:8086/tiktok/"
+	MinioLinkPrefix string = "http://haorui.xyz:8086/tiktok/"
 	Policy          string = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetBucketLocation"],"Resource":["arn:aws:s3:::tiktok"]},{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:ListBucket"],"Resource":["arn:aws:s3:::tiktok"],"Condition":{"StringEquals":{"s3:prefix":["*"]}}},{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::tiktok/**"]}]}
 `
 )
