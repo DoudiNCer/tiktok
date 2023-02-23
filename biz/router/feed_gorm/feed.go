@@ -3,7 +3,7 @@
 package Feed
 
 import (
-	feed "github.com/DodiNCer/tiktok/biz/handler/feed"
+	feed_gorm "github.com/DodiNCer/tiktok/biz/handler/feed_gorm"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
@@ -21,7 +21,7 @@ func Register(r *server.Hertz) {
 		_douyin := root.Group("/douyin", _douyinMw()...)
 		{
 			_feed := _douyin.Group("/feed", _feedMw()...)
-			_feed.GET("/", append(_queryfeedlistMw(), feed.QueryFeedList)...)
+			_feed.GET("/", append(_queryfeedlistMw(), feed_gorm.QueryFeedList)...)
 		}
 	}
 }

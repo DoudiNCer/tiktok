@@ -441,9 +441,9 @@ func (p *PublishListResponse) String() string {
 }
 
 type PublishActionRequest struct {
-	Token string `thrift:"token,1" form:"token" json:"token"`
-	Data  []byte `thrift:"data,2" form:"data" json:"data"`
-	Title string `thrift:"title,3" form:"title" json:"title"`
+	Token string `thrift:"token,1" json:"token" query:"token"`
+	Data  []byte `thrift:"data,2" json:"data" query:"data"`
+	Title string `thrift:"title,3" json:"title" query:"title"`
 }
 
 func NewPublishActionRequest() *PublishActionRequest {
