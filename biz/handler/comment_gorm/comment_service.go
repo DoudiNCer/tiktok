@@ -53,7 +53,7 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		//查找用户名称
+		//查找用户信息
 		user, err := mysql.QueryUserByUid(userId)
 		if err != nil {
 			mysql.DB.Rollback()
@@ -109,35 +109,11 @@ func CreateComment(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		//获取用户头像
-		portraitPath, err := mysql.QueryPortraitPathByUserId(userId)
-		if err != nil {
-			mysql.DB.Rollback()
-			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
-			return
-		}
-
-		//获取用户个人页顶部大图
-		backgroundImage, err := mysql.QueryBackgroundImageByUserId(userId)
-		if err != nil {
-			mysql.DB.Rollback()
-			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: "获取用户个人页顶部大图失败"})
-			return
-		}
-
-		//获取用户个人简介
-		signature, err := mysql.QuerySignatureByUserId(userId)
-		if err != nil {
-			mysql.DB.Rollback()
-			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
-			return
-		}
-
 		mysql.DB.Commit()
 		mysql.DB = tmp
 		//封装用户响应数据
 		userResp := comment_gorm.User{ID: userId, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: self == 1, FavoriteCount: favoriteCount, WorkCount: workCount, TotalFavorited: totalFavorited,
-			Avatar: portraitPath, Signature: signature, BackgroundImage: backgroundImage,
+			Avatar: user.PortraitPath, Signature: user.Signature, BackgroundImage: user.BackgroundPicturePath,
 		}
 
 		//封装评论响应数据
@@ -197,7 +173,7 @@ func QueryCommentList(ctx context.Context, c *app.RequestContext) {
 
 		comment := comments[i]
 
-		//查找评论用户名称
+		//查找评论用户信息
 		user, err := mysql.QueryUserByUid(comment.CreatorUid)
 		if err != nil {
 			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
@@ -246,29 +222,9 @@ func QueryCommentList(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		//获取评论者头像
-		portraitPath, err := mysql.QueryPortraitPathByUserId(comment.CreatorUid)
-		if err != nil {
-			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: err.Error()})
-			return
-		}
-
-		//获取评论者个人页顶部大图
-		backgroundImage, err := mysql.QueryBackgroundImageByUserId(comment.CreatorUid)
-		if err != nil {
-			c.JSON(200, &comment_gorm.CommentActionResponse{StatusCode: comment_gorm.Code_DBErr, StatusMsg: "获取用户个人页顶部大图失败"})
-			return
-		}
-
-		//获取评论者个人简介
-		signature, err := mysql.QuerySignatureByUserId(comment.CreatorUid)
-		if err != nil {
-			return
-		}
-
 		//封装评论者响应数据
 		userResp := comment_gorm.User{ID: comment.CreatorUid, Name: user.Name, FollowCount: followTotal, FollowerCount: followerTotal, IsFollow: isFollow == 1, FavoriteCount: favoriteCount, WorkCount: workCount, TotalFavorited: totalFavorited,
-			Avatar: portraitPath, Signature: signature, BackgroundImage: backgroundImage,
+			Avatar: user.PortraitPath, Signature: user.Signature, BackgroundImage: user.BackgroundPicturePath,
 		}
 
 		//封装返回的评论
