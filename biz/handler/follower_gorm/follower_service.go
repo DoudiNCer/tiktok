@@ -204,7 +204,7 @@ func QueryFollowerList(ctx context.Context, c *app.RequestContext) {
 	userId := req.GetUserID()
 
 	//从缓存中获取userList
-	if v, found := common.CacheManager.Get(userId); found == true {
+	if v, found := common.CacheManager.Get(userId + common.KeyAddUser); found == true {
 		resp.UserList = v.([]*follower_gorm.User)
 		resp.StatusCode = follower_gorm.Code_Success
 		resp.StatusMsg = "请求正常(走缓存)"

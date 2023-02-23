@@ -4,11 +4,13 @@ package favorite_gorm
 
 import (
 	"context"
+	"github.com/DodiNCer/tiktok/biz/common"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/follower_gorm"
 	"github.com/DodiNCer/tiktok/biz/util"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 
 	"github.com/DodiNCer/tiktok/biz/model/favorite_gorm"
@@ -90,7 +92,8 @@ func FavoriteAction(ctx context.Context, c *app.RequestContext) {
 			StatusMsg:  err.Error(),
 		})
 	}
-
+	//删除user信息相关缓存
+	common.DeleteUserReferTo(strconv.FormatInt(userId, 10))
 	resp := new(favorite_gorm.FavoriteActionResponse)
 	resp.StatusCode = follower_gorm.Code_Success
 	c.JSON(consts.StatusOK, resp)
