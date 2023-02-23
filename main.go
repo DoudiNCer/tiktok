@@ -12,7 +12,8 @@ import (
 func main() {
 	h := server.Default()
 	dal.Init()
-	mw.InitRedis()
+	mw.InitRPC()
+	mw.InitMinio()
 	router.Register(h)
 	h.Spin()
 }
