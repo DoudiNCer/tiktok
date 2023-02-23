@@ -66,7 +66,10 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 	var followerCount int64
 	var favoriteCount int64
 	var commentCount int64
+	var isbool1 int64 //用户是否关注自己
 	var isbool int64
+	var workCount int64           //视频作者作品数量
+	var workerFavoriteCount int64 //视频作者点赞数
 	//数据库操作
 	err = func() error {
 		if user, err = mysql.QueryUserByUid(userId); err != nil {
@@ -80,12 +83,40 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 		if _, followerCount, err = mysql.QueryFollower(user.Id); err != nil {
 			return err
 		}
+
+		//查找用户是否关注视频作者
+		if v, found := common.CacheManager.Get(strconv.FormatInt(user.Id, 10) + strconv.FormatInt(user.Id, 10) + common.KeyFollowIs); found == true {
+			isbool1 = v.(int64)
+		} else if isbool1, err = mysql.QueryIfFollowSomeone(user.Id, user.Id); err != nil {
+			return err
+		} else {
+			common.CacheManager.Set(strconv.FormatInt(user.Id, 10)+strconv.FormatInt(user.Id, 10)+common.KeyFollowIs, isbool, cache.DefaultExpiration)
+		}
+
+		//查找视频作者作品数量
+		workCount = mysql.QueryVideoNumFromUser(user.Id)
+
+		//查找视频作者点赞数量
+		workerFavoriteCount = mysql.QueryNumOfVideoFavoriteByUser(user.Id)
+
 		userRes := &follower_gorm.User{
 			ID:            user.Id,
 			Name:          user.Name,
 			FollowCount:   followCount,
 			FollowerCount: followerCount,
-			IsFollow:      false,
+			IsFollow: func() bool {
+				if isbool1 == 1 {
+					return true
+				} else {
+					return false
+				}
+			}(),
+			Avatar:          user.PortraitPath,
+			BackgroundImage: user.BackgroundPicturePath,
+			Signature:       user.Signature,
+			TotalFavorited:  followerCount,
+			WorkCount:       workCount,
+			FavoriteCount:   workerFavoriteCount,
 		}
 
 		if videoList, err = mysql.QueryVideoList(userId); err != nil {
