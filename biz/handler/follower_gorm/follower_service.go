@@ -57,7 +57,7 @@ func CreateFollower(ctx context.Context, c *app.RequestContext) {
 			resp.StatusMsg = "取消关注成功"
 		}
 		//信息更新，删除旧缓存
-		common.CacheManager.Delete(strconv.FormatInt(userId, 10) + common.KeyAddUser)
+		common.DeleteUserReferTo(strconv.FormatInt(userId, 10))
 
 	} else {
 		//在follower表中创建记录

@@ -5,6 +5,7 @@ package publish_gorm
 import (
 	"bytes"
 	"context"
+	"github.com/DodiNCer/tiktok/biz/common"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
 	"github.com/DodiNCer/tiktok/biz/model/favorite_gorm"
@@ -15,6 +16,7 @@ import (
 	"github.com/DodiNCer/tiktok/biz/util"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"strconv"
 )
 
 // PublishList .
@@ -123,7 +125,6 @@ func PublishList(ctx context.Context, c *app.RequestContext) {
 			StatusMsg:  err.Error(),
 		})
 	}
-
 	resp := new(publish_gorm.PublishListResponse)
 	resp.VideoList = videoListRes
 	c.JSON(consts.StatusOK, resp)
@@ -228,7 +229,8 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 			StatusMsg:  err.Error(),
 		})
 	}
-
+	//发布视频更新用户相关缓存
+	common.DeleteUserReferTo(strconv.FormatInt(user.Id, 10))
 	resp := new(publish_gorm.PublishActionResponse)
 	resp.StatusCode = 0
 	resp.StatusMsg = "上传视频成功"
