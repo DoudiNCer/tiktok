@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Video struct {
-	Id         int64 `gorm:"primaryKey"`
+	Id         int64 `gorm:"primaryKey;autoIncrement"`
 	Title      string
 	Path       string
 	CreatorId  int64
