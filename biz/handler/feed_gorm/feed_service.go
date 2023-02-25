@@ -31,8 +31,7 @@ func QueryFeedList(ctx context.Context, c *app.RequestContext) {
 
 	time := req.LastTime
 	token := req.Token
-	println(token)
-	println(time)
+
 	var uid = int64(0)
 	if token != "" {
 		checkToken, err := util.CheckToken(token)
@@ -63,7 +62,7 @@ func QueryFeedList(ctx context.Context, c *app.RequestContext) {
 			return err
 		}
 		for _, video := range videoList {
-			if user, err = mysql.QueryUserByUid(video.Id); err != nil {
+			if user, err = mysql.QueryUserByUid(video.CreatorId); err != nil {
 				return err
 			}
 			//查找视频作者关注总数

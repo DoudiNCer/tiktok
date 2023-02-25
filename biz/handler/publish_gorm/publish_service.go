@@ -181,7 +181,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 
 	token := req.Token
 	//data := req.Data
-	data, err := c.FormFile("file")
+	data, err := c.FormFile("data")
 	title := req.Title
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
@@ -206,16 +206,16 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 
 	//上传视频
 
-	fmt.Println(data.Filename)
-
-	fmt.Println(title)
-	fmt.Println(data.Size)
+	//fmt.Println(data.Filename)
+	//
+	//fmt.Println(title)
+	//fmt.Println(data.Size)
 	open, err := data.Open()
 	if err != nil {
 		return
 	}
 
-	content := make([]byte, 10000000)
+	content := make([]byte, data.Size)
 	count, err := open.Read(content)
 	if err != nil {
 		return
