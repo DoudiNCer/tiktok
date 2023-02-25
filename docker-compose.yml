@@ -14,7 +14,7 @@ services:
       - MYSQL_PASSWORD=tiktok
       - MYSQL_RANDOM_ROOT_PASSWORD="yes"
   kitex-ffmpeg:
-    image: 'doudincer/kitex-ffmpeg:v1.1'
+    image: 'doudincer/kitex-ffmpeg:v1.2'
     ports:
       - '19427:9427'
     environment:
