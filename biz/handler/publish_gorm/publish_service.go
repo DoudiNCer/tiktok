@@ -5,6 +5,7 @@ package publish_gorm
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/DodiNCer/tiktok/biz/common"
 	"github.com/DodiNCer/tiktok/biz/dal/mysql"
 	"github.com/DodiNCer/tiktok/biz/model"
@@ -18,6 +19,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/patrickmn/go-cache"
 	"strconv"
+	"time"
 )
 
 // PublishList .
@@ -178,7 +180,8 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 	}
 
 	token := req.Token
-	data := req.Data
+	//data := req.Data
+	data, err := c.FormFile("file")
 	title := req.Title
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
@@ -202,9 +205,28 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//上传视频
-	videoReader := bytes.NewReader(data)
 
-	videoName, err := util.MinioUploadVideo(videoReader, videoReader.Size())
+	fmt.Println(data.Filename)
+
+	fmt.Println(title)
+	fmt.Println(data.Size)
+	open, err := data.Open()
+	if err != nil {
+		return
+	}
+
+	content := make([]byte, 10000000)
+	count, err := open.Read(content)
+	if err != nil {
+		return
+	}
+
+	reader := bytes.NewReader(content)
+	fmt.Println(count, "  ok ", reader.Size(), len(content))
+	//videoName, err := util.MinioUploadVideo(videoReader, videoReader.Size())
+	//videoName, err := util.MinioUploadVideo(reader, reader.Size())
+
+	videoName, err := util.MinioUploadVideo(reader, data.Size)
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -212,8 +234,8 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-
-	workspace, err := mw.RPCClient.InitWorkspace(ctx, &kitex_ffmpeg.InitWorkspaceRequest{Whoami: "汤香b"})
+	whoami := "tiktok" + time.Now().String()
+	workspace, err := mw.RPCClient.InitWorkspace(ctx, &kitex_ffmpeg.InitWorkspaceRequest{Whoami: whoami})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -221,7 +243,8 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	file := kitex_ffmpeg.File{FileName: "video", Content: data}
+	//file := kitex_ffmpeg.File{FileName: "video", Content: data}
+	file := kitex_ffmpeg.File{FileName: "video", Content: content}
 	files, err := mw.RPCClient.UploadFiles(context.Background(), &kitex_ffmpeg.UploadFilesRequest{Token: workspace.Token, Files: []*kitex_ffmpeg.File{&file}})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
@@ -238,7 +261,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 		})
 		return
 	}
-	downloadFiles, err := mw.RPCClient.DownloadFiles(context.Background(), &kitex_ffmpeg.DownloadFilesRequest{Token: workspace.Token, FileIDs: []string{"a.out"}})
+	downloadFiles, err := mw.RPCClient.DownloadFiles(context.Background(), &kitex_ffmpeg.DownloadFilesRequest{Token: workspace.Token, FileIDs: []string{"out.jpg"}})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,
@@ -248,7 +271,7 @@ func PublishAction(ctx context.Context, c *app.RequestContext) {
 	}
 	//上传视频封面
 	coverReader := bytes.NewReader(downloadFiles.Files[0].Content)
-	_, err = mw.RPCClient.DropWorkspace(context.Background(), &kitex_ffmpeg.DropWorkspaceRequest{Token: workspace.Token, Whoami: "汤香香"})
+	_, err = mw.RPCClient.DropWorkspace(context.Background(), &kitex_ffmpeg.DropWorkspaceRequest{Token: workspace.Token, Whoami: whoami})
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
 			StatusCode: follower_gorm.Code_DBErr,

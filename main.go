@@ -11,6 +11,8 @@ import (
 
 func main() {
 	h := server.Default(server.WithMaxRequestBodySize(1073741824), server.WithMaxKeepBodySize(1073741824))
+	//h.Use(accesslog.New(accesslog.WithFormat("[${time}] ${status} - ${latency} ${method} ${path} ${queryParams} ${body} \n " +
+	//	"req: ${resBody}")))
 	dal.Init()
 	mw.InitRPC()
 	mw.InitMinio()

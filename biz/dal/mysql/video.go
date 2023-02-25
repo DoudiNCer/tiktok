@@ -31,10 +31,10 @@ func CreatVideo(userId int64, title string, path string, coverPath string) error
 		Title:      title,
 		Path:       path,
 		CreatorId:  userId,
-		CreateTime: time.Time{},
+		CreateTime: time.Now(),
 		CoverPath:  coverPath,
 		IsDeleted:  false,
-		UpdateTime: time.Time{},
+		UpdateTime: time.Now(),
 	}).Error
 	return err
 }

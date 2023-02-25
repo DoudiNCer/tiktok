@@ -10,6 +10,7 @@ var RPCClient kitexffmpeg.Client
 const (
 	DESTSERVICE = "KitexFfmpeg"
 	HOSTPORT    = "0.0.0.0:19427"
+	//HOSTPORT = "0.0.0.0:9427"
 )
 
 func InitRPC() {
