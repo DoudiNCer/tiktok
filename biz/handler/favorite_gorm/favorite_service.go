@@ -125,8 +125,9 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	reqUserId := req.UserID
-	token := req.Token
+	//reqUserId := req.UserID
+	userId := req.UserID
+	//token := req.Token
 
 	if err != nil {
 		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
@@ -136,21 +137,21 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//从token中拿取uid
-	key, err := util.CheckToken(token)
-	userId := key.UserId
-	if err != nil {
-		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
-			StatusCode: follower_gorm.Code_RTErr,
-			StatusMsg:  err.Error(),
-		})
-	}
-	//验证参数里的id和token的id一致
-	if reqUserId != userId {
-		c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
-			StatusCode: follower_gorm.Code_RTErr,
-			StatusMsg:  err.Error(),
-		})
-	}
+	//key, err := util.CheckToken(token)
+	//userId := key.UserId
+	//if err != nil {
+	//	c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+	//		StatusCode: follower_gorm.Code_RTErr,
+	//		StatusMsg:  err.Error(),
+	//	})
+	//}
+	////验证参数里的id和token的id一致
+	//if reqUserId != userId {
+	//	c.JSON(consts.StatusOK, &favorite_gorm.FavoriteActionResponse{
+	//		StatusCode: follower_gorm.Code_RTErr,
+	//		StatusMsg:  err.Error(),
+	//	})
+	//}
 
 	var videoList []*favorite_gorm.Video
 
