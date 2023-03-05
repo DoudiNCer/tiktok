@@ -134,6 +134,7 @@ func FavoriteList(ctx context.Context, c *app.RequestContext) {
 			StatusCode: follower_gorm.Code_RTErr,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 
 	//从token中拿取uid
